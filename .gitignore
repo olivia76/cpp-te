@@ -1,0 +1,12 @@
+*~
+*.o
+*.so
+*.exe
+*.pyc
+*.plist
+*.rpm
+*#
+.#*
+build
+version.txt
+reports

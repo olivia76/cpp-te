@@ -97,5 +97,5 @@ runs:
       shell: bash
       if: runner.os == 'Linux'
       run: |
-        if [ "$RUNNER_OS" != "Windows" ]; then source .venv/bin/activate fi
+        if [ "$RUNNER_OS" != "Windows" ]; then source .venv/bin/activate; fi
         make conan-package

@@ -33,12 +33,13 @@ struct default_visitor {
   }
 
   template <typename _Fn> constexpr static Derived create(_Fn &&_fn) {
+    Derived v;
+
     constexpr size_t N = std::tuple_size_v<TYPES>;
-    if constexpr (N == 0)
-      return;
-    visitor_methods vm;
-    create_i_n<0, N>(std::forward<_Fn>(_fn), vm);
-    return Derived(default_visitor(std::move(vm)));
+    if constexpr (N != 0)
+      create_i_n<0, N>(std::forward<_Fn>(_fn), v.methods);
+      
+    return v;
   }
   template <std::size_t I, std::size_t N, typename _Fn>
   static constexpr void create_i_n(_Fn &&_fn, visitor_methods &_vm) {

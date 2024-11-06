@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.5)
 set(CMAKE_VERBOSE_MAKEFILE ON)
 
-add_compile_options(-Wall -Wextra -pedantic -O3)
+set(CMAKE_CXX_STANDARD 20)
 
 project(cpp-te VERSION 1.0 LANGUAGES CXX)
 

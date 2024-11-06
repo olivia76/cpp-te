@@ -14,6 +14,7 @@ ENABLE_TESTING := ON
 ENABLE_COVERAGE := OFF
 
 CONAN_OPTIONS := -s:b compiler.cppstd=20 -s:h compiler.cppstd=20 --profile:build=default --build=missing
+PIP_OPTIONS :=
 
 .PHONY: all
 all: build
@@ -48,9 +49,6 @@ coverage:
 conan-package:
 	export CONAN_REVISIONS_ENABLED=1; export LD_LIBRARY_PATH=.:$$LD_LIBRARY_PATH; conan create . ${CONAN_OPTIONS} --build-require #--format=json
 
-#all:
-#	g++ -std=c++20 -O3 main.cpp
-
 clang-format:
 	clang-format --verbose -i $(shell find include tests -name '*pp') --style=LLVM
 
@@ -66,6 +64,9 @@ pyenv-python:
 pyenv-venv:
 	~/.pyenv/bin/pyenv virtualenv $(PYTHON_VERSION) $(VENV_NAME)
 
+.PHONY: pyenv-setup
+pyenv-setup: pyenv-conan pyenv-tests
+
 .PHONY: pyenv-conan
 pyenv-conan:
 	pip3 install $(PIP_OPTIONS) --upgrade pip
@@ -73,4 +74,4 @@ pyenv-conan:
 
 .PHONY: pyenv-tests
 pyenv-tests:
-	pip3 install $(PIP_OPTIONS) gcovr fastapi fastapi-cli
+	pip3 install $(PIP_OPTIONS) gcovr

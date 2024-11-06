@@ -3,13 +3,13 @@ from conan.tools.cmake import CMakeDeps, CMakeToolchain, cmake_layout, CMake
 from conan.tools.system.package_manager import Apt
 import os
 
-class CppTestConan(ConanFile):
-    name = "cpptest"
+class CppTeConan(ConanFile):
+    name = "cpp-te"
     version = "1.0"
     license = ""
     author = "Olivia Quinet olivia.quinet@gmail.com"
-    description = "CPPTEST"
-    topics = ("cpp-test")
+    description = "CPP-TypeErasure with visitor"
+    topics = ("cpp-te")
     settings = "os", "compiler", "build_type", "arch"
     options = {"shared": [True, False], "fPIC": [True, False], "ENABLE_COVERAGE": ["ON", "OFF"], "ENABLE_TESTING": ["ON", "OFF"]}
     default_options = {"shared": True, "fPIC": True, "ENABLE_COVERAGE": "OFF", "ENABLE_TESTING": "ON", "fmt/*:shared": False}

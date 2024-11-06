@@ -13,7 +13,7 @@ tests_vv.cpp
 target_link_libraries(tests
   PRIVATE
   Catch2::Catch2WithMain
-  project
+  cpp-te
   spdlog::spdlog
   )
 
@@ -27,4 +27,5 @@ catch_discover_tests(
   OUTPUT_PREFIX "unittests."
   OUTPUT_SUFFIX .xml
   WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/tests
+  EXTRA_ARGS --skip-benchmarks
   )

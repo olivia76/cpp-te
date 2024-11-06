@@ -1,0 +1,106 @@
+name: CMake
+description: "Checkout, prepare, compile, tests and publish to codecov"
+
+runs:
+  using: "composite"
+  steps:
+    - name: Cache
+      uses: actions/cache@main
+      env:
+        cache-name: cache-conan-modules
+      with:
+        path: |
+          ${{ env.CONAN_USER_HOME }}
+          ~/.cache/pip
+        key: ${{ runner.os }}-${{ env.BUILD_TYPE }}-${{ hashFiles('CMakeLists.txt') }}-${{ hashFiles('cmake/Conan.cmake') }}
+
+    - name: Install conan and dependencies on Unix
+      shell: bash
+      if: runner.os != 'Windows'
+      run: |
+        make pyenv-setup PIP_OPTIONS=
+        if [ "$RUNNER_OS" == "Linux" ]; then
+          echo "Ubuntu - Fix Conan Path"
+          sudo update-alternatives --install /usr/bin/conan conan /home/runner/.local/bin/conan 10
+          sudo update-alternatives --config conan
+        else
+          echo "MacOSX - add coreutils"
+          brew install coreutils
+        fi
+        ./setup-conan-github.bash
+        ;
+
+    - name: Install conan and dependencies on windows
+      shell: bash
+      if: runner.os == 'Windows'
+      run: |
+        make pyenv-setup PIP_OPTIONS=--user
+        echo "C:/Users/runneradmin/AppData/Roaming/Python/Python37/Scripts" >> $GITHUB_PATH
+        echo "Using chocolatey to install OpenCppCoverage"
+        choco install opencppcoverage -y
+        # Add to Path
+        echo "C:/Program Files/OpenCppCoverage" >> $GITHUB_PATH
+        ;
+
+    - name: Create conan profile
+      shell: bash
+      run: make conan-profile
+
+    - name: Configure CMake
+      shell: bash
+      run: make configure BUILD_TYPE=$BUILD_TYPE ENABLE_COVERAGE=$ENABLE_COVERAGE
+
+    - name: Build
+      shell: bash
+      run: make build BUILD_TYPE=$BUILD_TYPE ENABLE_COVERAGE=$ENABLE_COVERAGE
+
+    - name: Retrieve data
+      shell: bash
+      if: runner.os != 'Windows'
+      working-directory: ./test
+      run: ./retrieve.bash
+
+    - name: Unix - C++/Python Test and coverage
+      shell: bash
+      env:
+        CMAKE_ARGS: -DCMAKE_BUILD_TYPE:STRING=$BUILD_TYPE -DENABLE_COVERAGE:BOOL=$ENABLE_COVERAGE
+      if: runner.os != 'Windows'
+      working-directory: ./build
+      run: |
+          ctest -C $BUILD_TYPE --output-on-failure
+          gcovr -j $(nproc) --delete --print-summary --xml-pretty --xml coverage.xml --filter '../src/' --filter '../include/' --filter '../python/' --exclude '../test/'
+          if [ "$RUNNER_OS" == "Linux" ]; then
+            make -C .. build-python
+            make -C .. tests-python
+            gcovr -j $(nproc) --delete --print-summary --xml-pretty --xml coverage-c++-2.xml --filter '../src/' --filter '../include/' --filter '../python/' --exclude '../tests/'
+          fi
+          ;
+
+    - name: Windows - Test and coverage
+      shell: bash
+      if: runner.os == 'Windows'
+      working-directory: ./build
+      run: |
+        OpenCppCoverage.exe --config_file=..\\OpenCppCoverage.cfg --cover_children --optimized_build --continue_after_cpp_exception -- ctest -C $BUILD_TYPE --output-on-failure -E 'When I read a file'
+
+    - name: Publish to codecov
+      uses: codecov/codecov-action@main
+      with:
+        flags: unittests-${{ runner.os }}
+        name: ${{ runner.os }}-coverage
+        directory: ./build
+        verbose: true
+
+    - name: Windows - upload logs
+      uses: actions/upload-artifact@main
+      if: always() && runner.os == 'Windows'
+      with:
+        name: code-coverage-logs
+        path: ./build/LastCoverageResults.log
+        retention-days: 5
+
+    - name: Create conan package
+      shell: bash
+      if: runner.os == 'Linux'
+      run: |
+        make conan-package

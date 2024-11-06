@@ -18,7 +18,9 @@ runs:
       shell: bash
       if: runner.os != 'Windows'
       run: |
-        make pyenv-setup PIP_OPTIONS='--user --break-system-packages'
+        python3 -m venv .venv
+        source .venv/bin/activate
+        make pyenv-setup PIP_OPTIONS='--user'
         if [ "$RUNNER_OS" == "Linux" ]; then
           echo "Ubuntu - Fix Conan Path"
           sudo update-alternatives --install /usr/bin/conan conan /home/runner/.local/bin/conan 10

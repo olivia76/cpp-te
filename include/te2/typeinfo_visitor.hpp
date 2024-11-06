@@ -46,7 +46,8 @@ struct type_info_visitor {
     using TS = std::tuple_element_t<I, TYPES>;
     using VP = visit_type<TS>;
     using TP = std::remove_reference_t<TS>;
-    static_cast<VP &>(_vm) = VP{_fn, typeid(TP)};
+    static_cast<VP &>(_vm).do_visit = _fn;
+    static_cast<VP &>(_vm).ti = typeid(TP);
     if constexpr (I + 1 < N)
       create_i_n<I + 1, N>(std::forward<_Fn>(_fn), _vm);
   }

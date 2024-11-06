@@ -44,7 +44,7 @@ struct default_visitor {
   static constexpr void create_i_n(_Fn &&_fn, visitor_methods &_vm) {
     using TS = std::tuple_element_t<I, TYPES>;
     using VP = visit_type<TS>;
-    static_cast<VP &>(_vm) = VP(_fn);
+    static_cast<VP &>(_vm).do_visit = _fn;
     if constexpr (I + 1 < N)
       create_i_n<I + 1, N>(std::forward<_Fn>(_fn), _vm);
   }

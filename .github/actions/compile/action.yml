@@ -44,25 +44,19 @@ runs:
     - name: Create conan profile
       shell: bash
       run: |
-        if [ "$RUNNER_OS" != "Windows" ]; then
-          source .venv/bin/activate
-        fi
+        if [ "$RUNNER_OS" != "Windows" ]; then source .venv/bin/activate fi
         ./setup-conan-github.bash
 
     - name: Configure CMake
       shell: bash
       run: |
-        if [ "$RUNNER_OS" != "Windows" ]; then
-          source .venv/bin/activate
-        fi
+        if [ "$RUNNER_OS" != "Windows" ]; then source .venv/bin/activate fi
         make configure BUILD_TYPE=$BUILD_TYPE ENABLE_COVERAGE=$ENABLE_COVERAGE
 
     - name: Build
       shell: bash
       run: |
-        if [ "$RUNNER_OS" != "Windows" ]; then
-          source .venv/bin/activate
-        fi
+        if [ "$RUNNER_OS" != "Windows" ]; then source .venv/bin/activate fi
         make build BUILD_TYPE=$BUILD_TYPE ENABLE_COVERAGE=$ENABLE_COVERAGE
 
     - name: Unix - C++/Python Test and coverage
@@ -72,7 +66,7 @@ runs:
       if: runner.os != 'Windows'
       working-directory: ./build
       run: |
-        source .venv/bin/activate
+        source ../.venv/bin/activate
         ctest -C $BUILD_TYPE --output-on-failure
         gcovr -j $(nproc) --delete --print-summary --xml-pretty --xml coverage.xml --filter '../src/' --filter '../include/' --filter '../python/' --exclude '../test/'
 
@@ -103,4 +97,5 @@ runs:
       shell: bash
       if: runner.os == 'Linux'
       run: |
+        if [ "$RUNNER_OS" != "Windows" ]; then source .venv/bin/activate fi
         make conan-package

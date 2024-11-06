@@ -22,9 +22,9 @@ runs:
         source .venv/bin/activate
         make pyenv-setup PIP_OPTIONS=
         if [ "$RUNNER_OS" == "Linux" ]; then
-          echo "Ubuntu - Fix Conan Path"
-          sudo update-alternatives --install /usr/bin/conan conan /home/runner/.local/bin/conan 10
-          sudo update-alternatives --config conan
+          #echo "Ubuntu - Fix Conan Path"
+          #sudo update-alternatives --install /usr/bin/conan conan /home/runner/.local/bin/conan 10
+          #sudo update-alternatives --config conan
         else
           echo "MacOSX - add coreutils"
           brew install coreutils
@@ -34,7 +34,8 @@ runs:
       shell: bash
       if: runner.os == 'Windows'
       run: |
-        make pyenv-setup PIP_OPTIONS=--user
+        python3 -m venv .venv
+        make pyenv-setup PIP_OPTIONS=
         echo "C:/Users/runneradmin/AppData/Roaming/Python/Python37/Scripts" >> $GITHUB_PATH
         echo "Using chocolatey to install OpenCppCoverage"
         choco install opencppcoverage -y
@@ -43,7 +44,9 @@ runs:
 
     - name: Create conan profile
       shell: bash
-      run: ./setup-conan-github.bash
+      run: |
+        source .venv/bin/activate
+        ./setup-conan-github.bash
 
     - name: Configure CMake
       shell: bash

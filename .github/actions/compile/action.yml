@@ -27,8 +27,6 @@ runs:
           echo "MacOSX - add coreutils"
           brew install coreutils
         fi
-        ./setup-conan-github.bash
-        ;
 
     - name: Install conan and dependencies on windows
       shell: bash
@@ -40,11 +38,10 @@ runs:
         choco install opencppcoverage -y
         # Add to Path
         echo "C:/Program Files/OpenCppCoverage" >> $GITHUB_PATH
-        ;
 
     - name: Create conan profile
       shell: bash
-      run: make conan-profile
+      run: ./setup-conan-github.bash
 
     - name: Configure CMake
       shell: bash
@@ -53,12 +50,6 @@ runs:
     - name: Build
       shell: bash
       run: make build BUILD_TYPE=$BUILD_TYPE ENABLE_COVERAGE=$ENABLE_COVERAGE
-
-    - name: Retrieve data
-      shell: bash
-      if: runner.os != 'Windows'
-      working-directory: ./test
-      run: ./retrieve.bash
 
     - name: Unix - C++/Python Test and coverage
       shell: bash
@@ -69,12 +60,6 @@ runs:
       run: |
           ctest -C $BUILD_TYPE --output-on-failure
           gcovr -j $(nproc) --delete --print-summary --xml-pretty --xml coverage.xml --filter '../src/' --filter '../include/' --filter '../python/' --exclude '../test/'
-          if [ "$RUNNER_OS" == "Linux" ]; then
-            make -C .. build-python
-            make -C .. tests-python
-            gcovr -j $(nproc) --delete --print-summary --xml-pretty --xml coverage-c++-2.xml --filter '../src/' --filter '../include/' --filter '../python/' --exclude '../tests/'
-          fi
-          ;
 
     - name: Windows - Test and coverage
       shell: bash

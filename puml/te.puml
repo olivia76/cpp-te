@@ -1,0 +1,47 @@
+@startuml
+
+hide empty attributes
+hide empty members
+
+package "TypeErasureVisitor (te)" {
+  class base < Concept, VisitorStrategy > {
+    PIMPL m_pimpl
+    VisitorStrategy m_visitor_strategy
+  }
+
+  class default_visitor_strategy {
+
+  }
+
+  class default_visitor < Derived, VISITOR_FCT, Ts... > {
+
+  }
+
+}
+
+base -[hidden]-> default_visitor_strategy
+default_visitor_strategy <.u. default_visitor
+
+package "Pipeline" {
+  interface Concept {
+  }
+
+  class model < Tp > {
+  }
+
+  class Concrete  {
+  }
+
+  class Visitor {
+  }
+}
+
+base <- Concrete
+Concrete .> default_visitor_strategy
+Concrete .> Concept
+base::PIMPL *.d. Concept : std::unique_ptr<Concept>
+Concept <-- model
+default_visitor <- Visitor
+Concrete -[hidden]-> Visitor
+
+@enduml

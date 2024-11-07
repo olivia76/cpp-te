@@ -1,0 +1,58 @@
+@startuml
+
+hide empty attributes
+hide empty members
+
+package "TypeErasureVisitor (te2)" {
+  class te_base {
+    PIMPL m_pimpl
+  }
+
+  class base < Concept, VisitorStrategy > {
+    PVTBL m_vtbl
+    VisitorStrategy m_visitor_strategy
+  }
+
+  class value_base {}
+
+  class value < Tp > {}
+
+  class default_visitor_strategy {
+
+  }
+
+  class default_visitor < Derived, VISITOR_FCT, Ts... > {
+
+  }
+
+}
+
+te_base --> base
+
+value_base <-- value
+value ..* te_base::PIMPL : std::unique_ptr<value_base>
+
+base -[hidden]-> default_visitor_strategy
+default_visitor_strategy <.u. default_visitor
+
+
+package "Pipeline" {
+  interface Vtbl {
+    create < Vp > ()
+  }
+
+  class Concrete  {
+  }
+
+  class Visitor {
+  }
+}
+
+base <- Concrete
+Concrete .> default_visitor_strategy
+Concrete .> Vtbl
+base::PVTBL *.d. Vtbl
+default_visitor <- Visitor
+Concrete -[hidden]-> Visitor
+
+@enduml

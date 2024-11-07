@@ -15,15 +15,17 @@ namespace te {
 namespace detail {
 
 template <typename _Tp> using PIMPL = std::unique_ptr<_Tp>;
+template <typename _Vp, typename _Tp, typename... _Args>
+inline auto make_pimpl(_Tp &&_x, _Args &&..._args) {
+  return std::make_unique<_Vp>(std::forward<_Tp>(_x),
+                               std::forward<_Args>(_args)...);
+}
 
 } // namespace detail
 
 auto visit(auto &&_visitor, auto &&_x) { return _x.accept(_visitor); }
 
-class te_base {};
-
-template <typename _Concept, typename _VisitorStrategy>
-class base : protected te_base {
+template <typename _Concept, typename _VisitorStrategy> class base {
 private:
   using PIMPL = detail::PIMPL<_Concept>;
 
@@ -33,8 +35,8 @@ private:
   template <typename _Tp, typename... _Args>
   static PIMPL create_pimpl(_Tp &&_tp, _Args &&..._args) {
     using MP = typename _Concept::template model<std::decay_t<_Tp>>;
-    return std::make_unique<MP>(std::forward<_Tp>(_tp),
-                                std::forward<_Args>(_args)...);
+    return detail::make_pimpl<MP>(std::forward<_Tp>(_tp),
+                                  std::forward<_Args>(_args)...);
   }
 
 protected:
@@ -42,7 +44,8 @@ protected:
   PIMPL &pimpl() noexcept { return m_pimpl; }
 
   template <typename _Tp, typename... _Args,
-            typename = std::enable_if_t<!std::is_base_of<te_base, _Tp>::value>>
+            typename = // To prevent overriding copy/move constructor
+            std::enable_if_t<!std::is_base_of<base, std::decay_t<_Tp>>::value>>
   explicit base(_Tp &&_tp, _Args &&..._args)
       : m_pimpl(create_pimpl(std::forward<_Tp>(_tp),
                              std::forward<_Args>(_args)...)) {}

@@ -13,15 +13,10 @@
 #include <te2/value.hpp>
 
 namespace te2 {
-namespace detail {
-
-struct create {};
-
-} // namespace detail
 
 auto visit(auto &&_visitor, auto &&_x) { return _x.accept(_visitor); }
 
-class te_base {
+class base_pimpl {
 private:
   using PIMPL = detail::PIMPL;
 
@@ -30,7 +25,7 @@ private:
   template <typename _Tp> static PIMPL make_pimpl(_Tp &&_tp) {
     using TP = std::decay_t<_Tp>;
     using VP = detail::value<TP>;
-    return std::make_unique<VP>(std::forward<_Tp>(_tp));
+    return detail::make_pimpl<VP>(std::forward<_Tp>(_tp));
   }
 
   PIMPL clone() const { return m_pimpl->clone(); }
@@ -53,22 +48,24 @@ protected:
     static TP &value(void *_p) noexcept { return *ptr(_p); }
   };
 
-  template <typename _Tp,
-            typename = std::enable_if_t<!std::is_base_of<te_base, _Tp>::value>>
-  explicit te_base(te2::detail::create, _Tp &&_tp)
+  template <
+      typename _Tp,
+      typename = // To prevent overriding copy/move constructor
+      std::enable_if_t<!std::is_base_of<base_pimpl, std::decay_t<_Tp>>::value>>
+  explicit base_pimpl(_Tp &&_tp)
       : m_pimpl(make_pimpl(std::forward<_Tp>(_tp))) {}
 
-  te_base(te_base &&_base) noexcept = default;
-  te_base(const te_base &_base) : m_pimpl(_base.clone()) {}
+  base_pimpl(base_pimpl &&_base) noexcept = default;
+  base_pimpl(const base_pimpl &_base) : m_pimpl(_base.clone()) {}
 
-  friend void swap(te_base &_lhs, te_base &_rhs) noexcept {
+  friend void swap(base_pimpl &_lhs, base_pimpl &_rhs) noexcept {
     using std::swap;
     swap(_lhs.m_pimpl, _rhs.m_pimpl);
   }
 };
 
 template <typename _VTBL, typename _VisitorStrategy>
-class base : protected te_base {
+class base : protected base_pimpl {
 private:
   using VTBL = std::decay_t<_VTBL>;
   using PVTBL = const VTBL *;
@@ -85,14 +82,14 @@ protected:
   const VTBL &vtbl() const noexcept { return *m_pvtbl; }
 
   template <typename _Tp,
-            typename = std::enable_if_t<!std::is_base_of<te_base, _Tp>::value>>
+            typename = // To prevent overriding copy/move constructor
+            std::enable_if_t<!std::is_base_of<base, std::decay_t<_Tp>>::value>>
   explicit base(_Tp &&_tp)
-      : te_base(te2::detail::create{}, std::forward<_Tp>(_tp)),
-        m_pvtbl(create_vtbl<_Tp>()) {}
+      : base_pimpl(std::forward<_Tp>(_tp)), m_pvtbl(create_vtbl<_Tp>()) {}
 
   base(base<_VTBL, _VisitorStrategy> &&_base) noexcept = default;
   base(const base<_VTBL, _VisitorStrategy> &_base)
-      : te_base(_base), m_pvtbl(_base.m_pvtbl),
+      : base_pimpl(_base), m_pvtbl(_base.m_pvtbl),
         m_visitor_strategy(_base.m_visitor_strategy) {}
 
   base &operator=(base<_VTBL, _VisitorStrategy> &&_rhs) noexcept = default;
@@ -104,7 +101,7 @@ protected:
 
   friend void swap(base &_lhs, base &_rhs) noexcept {
     using std::swap;
-    swap(static_cast<te_base &>(_lhs), static_cast<te_base &>(_rhs));
+    swap(static_cast<base_pimpl &>(_lhs), static_cast<base_pimpl &>(_rhs));
     swap(_lhs.m_pvtbl, _rhs.m_pvtbl);
     swap(_lhs.m_visitor_strategy, _rhs.m_visitor_strategy);
   }

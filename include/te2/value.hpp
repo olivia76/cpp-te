@@ -15,6 +15,10 @@ namespace te2::detail {
 struct value_base;
 using PIMPL = std::unique_ptr<value_base>;
 
+template <typename _Vp, typename _Tp> inline auto make_pimpl(_Tp &&_x) {
+  return std::make_unique<_Vp>(std::forward<_Tp>(_x));
+}
+
 struct value_ti {
   using TypeInfoRef = std::reference_wrapper<const std::type_info>;
 
@@ -38,8 +42,9 @@ struct value_base {
 };
 
 template <typename _Tp> struct value : public value_base {
-  template <typename _Vp, typename = std::enable_if_t<
-                              !std::is_base_of<value_base, _Vp>::value>>
+  template <typename _Vp,
+            typename = // To prevent overriding copy/move constructor
+            std::enable_if_t<!std::is_base_of<value, std::decay_t<_Vp>>::value>>
   explicit value(_Vp &&_v) : value_base(typeid(_Vp)), v(std::forward<_Vp>(_v)) {
 #ifdef __GNUC__
 #pragma GCC diagnostic push
@@ -51,7 +56,7 @@ template <typename _Tp> struct value : public value_base {
 #endif
   }
   value(const value &) = default;
-  virtual PIMPL clone() const { return std::make_unique<value>(*this); }
+  virtual PIMPL clone() const { return make_pimpl<value>(*this); }
   _Tp v;
 };
 

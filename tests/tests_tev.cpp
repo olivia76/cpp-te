@@ -46,7 +46,7 @@ template <typename _Tp> struct ShapeConcept::model : public ShapeConcept {
   }
 
   PIMPL clone() const final {
-    return std::make_unique<ShapeConcept::model<_Tp>>(*this);
+    return te::detail::make_pimpl<ShapeConcept::model<_Tp>>(*this);
   }
 
   _Tp value;

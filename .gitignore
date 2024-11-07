@@ -11,3 +11,4 @@ build
 version.txt
 reports
 coverage
+puml/*.png

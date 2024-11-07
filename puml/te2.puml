@@ -4,7 +4,7 @@ hide empty attributes
 hide empty members
 
 package "TypeErasureVisitor (te2)" {
-  class te_base {
+  class base_pimpl {
     PIMPL m_pimpl
   }
 
@@ -27,7 +27,7 @@ package "TypeErasureVisitor (te2)" {
 
 }
 
-te_base --> base
+base_pimpl --> base
 
 value_base <-- value
 value ..* te_base::PIMPL : std::unique_ptr<value_base>

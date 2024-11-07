@@ -41,10 +41,14 @@ template <typename _Tp> struct value : public value_base {
   template <typename _Vp, typename = std::enable_if_t<
                               !std::is_base_of<value_base, _Vp>::value>>
   explicit value(_Vp &&_v) : value_base(typeid(_Vp)), v(std::forward<_Vp>(_v)) {
+#ifdef __GNUC__
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Winvalid-offsetof"
+#endif
     static_assert(offsetof(value<_Tp>, v) == sizeof(value_base));
+#ifdef __GNUC__
 #pragma GCC diagnostic pop
+#endif
   }
   value(const value &) = default;
   virtual PIMPL clone() const { return std::make_unique<value>(*this); }

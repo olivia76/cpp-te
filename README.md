@@ -4,3 +4,11 @@
 [![CodeQL](https://github.com/olivia76/cpp-te/actions/workflows/codeql-analysis.yml/badge.svg)](https://github.com/olivia76/cpp-te/actions/workflows/codeql-analysis.yml)
 
 # cpp-te
+
+## Summary
+
+This is a C++20 implementation of the type erasure + visitor design patterns.
+
+## Example
+
+See [test_package](test_package) directory.

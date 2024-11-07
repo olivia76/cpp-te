@@ -60,7 +60,6 @@ protected:
 
   te_base(te_base &&_base) noexcept = default;
   te_base(const te_base &_base) : m_pimpl(_base.clone()) {}
-  // te_base& operator=(te_base&&) noexcept = default;
 
   friend void swap(te_base &_lhs, te_base &_rhs) noexcept {
     using std::swap;

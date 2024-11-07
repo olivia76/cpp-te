@@ -13,7 +13,7 @@ tests_vv.cpp
 target_link_libraries(tests
   PRIVATE
   Catch2::Catch2WithMain
-  cpp-te
+  cppte
   spdlog::spdlog
   )
 

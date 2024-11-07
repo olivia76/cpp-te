@@ -4,12 +4,12 @@ from conan.tools.system.package_manager import Apt
 import os
 
 class CppTeConan(ConanFile):
-    name = "cpp-te"
-    version = "1.0"
+    name = "cppte"
+    version = "1.0.0"
     license = ""
     author = "Olivia Quinet olivia.quinet@gmail.com"
     description = "CPP-TypeErasure with visitor"
-    topics = ("cpp-te")
+    topics = ("cppte")
     settings = "os", "compiler", "build_type", "arch"
     options = {"shared": [True, False], "fPIC": [True, False], "ENABLE_COVERAGE": ["ON", "OFF"], "ENABLE_TESTING": ["ON", "OFF"]}
     default_options = {"shared": True, "fPIC": True, "ENABLE_COVERAGE": "OFF", "ENABLE_TESTING": "ON", "fmt/*:shared": False}
@@ -57,5 +57,5 @@ class CppTeConan(ConanFile):
         self.cpp_info.includedirs = ["include"]
         self.cpp_info.libdirs = ["lib"]
         self.cpp_info.bindirs = ["bin"]
-        self.cpp_info.libs = ["cpptest"]
+        self.cpp_info.libs = ["cppte"]
         self.env_info.LD_LIBRARY_PATH.append(os.path.join(self.package_folder, "lib"))

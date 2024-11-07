@@ -41,7 +41,7 @@ struct type_info_visitor {
     constexpr size_t N = std::tuple_size_v<TYPES>;
     if constexpr (N != 0)
       create_i_n<0, N>(std::forward<_Fn>(_fn), v.methods);
-      
+
     return v;
   }
   template <std::size_t I, std::size_t N, typename _Fn>

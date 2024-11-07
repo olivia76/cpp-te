@@ -31,7 +31,7 @@ struct value_ti {
 
 struct value_base {
   explicit value_base(const std::type_info &_ti) : ti(_ti) {}
-  virtual ~value_base() = default;
+  virtual ~value_base();
   virtual PIMPL clone() const = 0;
 
   value_ti ti;

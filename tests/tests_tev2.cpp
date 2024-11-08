@@ -49,9 +49,11 @@ struct shape_vtbl {
   }
 };
 
-using VISITOR_STRATEGY = te2::visitor::default_visitor_strategy;
-// using VISITOR_STRATEGY = te2::visitor::type_info_visitor_strategy;
-using BASE = te2::base<shape_vtbl, VISITOR_STRATEGY>;
+// using VISITOR_STRATEGY = te2::visitor::default_visitor_strategy;
+// using BASE = te2::base<shape_vtbl, VISITOR_STRATEGY>;
+using VISITOR_STRATEGY = te2::visitor::type_info_visitor_strategy;
+using BASE = te2::base<shape_vtbl, VISITOR_STRATEGY,
+                       te2::type_info_pimpl::unique_ptr_strategy>;
 struct Shape : public BASE {
   template <typename _Vp>
   explicit Shape(_Vp &&_value) : BASE(std::forward<_Vp>(_value)) {}

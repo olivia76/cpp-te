@@ -15,8 +15,10 @@ namespace pipeline_tev {
 struct Visitor1;
 struct Visitor2;
 
+using PIMPL_STRATEGY = te::pimpl::unique_ptr_strategy;
+
 struct ShapeConcept {
-  using PIMPL = te::detail::PIMPL<ShapeConcept>;
+  using PIMPL = PIMPL_STRATEGY::PIMPL<ShapeConcept>;
 
   virtual ~ShapeConcept() = default;
 
@@ -45,15 +47,13 @@ template <typename _Tp> struct ShapeConcept::model : public ShapeConcept {
     return _visitor(value);
   }
 
-  PIMPL clone() const final {
-    return te::detail::make_pimpl<ShapeConcept::model<_Tp>>(*this);
-  }
+  PIMPL clone() const final { return PIMPL_STRATEGY::make_pimpl_clone(*this); }
 
   _Tp value;
 };
 
 using VISITOR_STRATEGY = te::visitor::default_visitor_strategy;
-using BASE = te::base<ShapeConcept, VISITOR_STRATEGY>;
+using BASE = te::base<ShapeConcept, VISITOR_STRATEGY, PIMPL_STRATEGY>;
 
 struct Shape : public BASE {
   template <typename _Vp>

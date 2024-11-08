@@ -10,7 +10,7 @@
 #include <type_traits>
 #include <typeindex>
 
-#include <te2/value.hpp>
+#include <te2/typeinfo_pimpl.hpp>
 
 namespace te2::visitor {
 
@@ -19,7 +19,7 @@ template <typename Derived, template <typename> typename VISITOR_FCT,
 struct type_info_visitor {
   template <typename _Tp> struct visit_type {
     VISITOR_FCT<_Tp> do_visit;
-    detail::value_ti ti{};
+    te2::type_info_pimpl::value_ti ti{};
     template <typename... Args> auto operator()(_Tp _x, Args &&..._args) const {
       return do_visit(_x, std::forward<Args>(_args)...);
     }
@@ -94,9 +94,8 @@ struct type_info_visitor_strategy {
   template <typename _Visitor, typename... _Args>
   auto operator()([[maybe_unused]] const auto &_vtbl, auto *_pimpl,
                   _Visitor &&_visitor, _Args &&..._args) const {
-    auto *ptr =
-        reinterpret_cast<const char *>(_pimpl) + sizeof(detail::value_base);
-    return _visitor.call(_pimpl->ti, ptr, std::forward<_Args>(_args)...);
+    return _visitor.call(_pimpl->ti, _pimpl->get_ptr(),
+                         std::forward<_Args>(_args)...);
   }
 };
 

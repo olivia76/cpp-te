@@ -4,7 +4,7 @@ hide empty attributes
 hide empty members
 
 package "TypeErasureVisitor (te)" {
-  class base < Concept, VisitorStrategy > {
+  class base < Concept, VisitorStrategy, PimplStrategy > {
     PIMPL m_pimpl
     VisitorStrategy m_visitor_strategy
   }

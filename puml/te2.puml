@@ -4,18 +4,15 @@ hide empty attributes
 hide empty members
 
 package "TypeErasureVisitor (te2)" {
-  class base_pimpl {
+  class base < Concept, VisitorStrategy, PimplStrategy > {
     PIMPL m_pimpl
-  }
-
-  class base < Concept, VisitorStrategy > {
     PVTBL m_vtbl
     VisitorStrategy m_visitor_strategy
   }
 
-  class value_base {}
+  class value_concept {}
 
-  class value < Tp > {}
+  class value_model < Tp > {}
 
   class default_visitor_strategy {
 
@@ -27,10 +24,8 @@ package "TypeErasureVisitor (te2)" {
 
 }
 
-base_pimpl --> base
-
-value_base <-- value
-value ..* te_base::PIMPL : std::unique_ptr<value_base>
+value_concept <-- value_model
+value_model ..* base::PIMPL : std::unique_ptr<value_concept>
 
 base -[hidden]-> default_visitor_strategy
 default_visitor_strategy <.u. default_visitor

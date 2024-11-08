@@ -2,8 +2,8 @@
  *  \author  Olivia Quinet
  */
 
-#ifndef _VISITOR2_HPP_
-#define _VISITOR2_HPP_
+#ifndef VISITOR2_HPP
+#define VISITOR2_HPP
 
 #include <te2/default_visitor.hpp>
 

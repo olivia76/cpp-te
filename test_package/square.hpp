@@ -2,8 +2,8 @@
  *  \author  Olivia Quinet
  */
 
-#ifndef _SQUARE_HPP_
-#define _SQUARE_HPP_
+#ifndef SQUARE_HPP
+#define SQUARE_HPP
 
 #include <numbers>
 

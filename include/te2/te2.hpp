@@ -3,29 +3,29 @@
  *  \file te2/te2.hpp
  */
 
-#ifndef _TE2_HPP_
-#define _TE2_HPP_
+#ifndef TE2_HPP
+#define TE2_HPP
 
 #include <te2/pimpl.hpp>
 
 namespace te2 {
 
-auto visit(auto &&_visitor, auto &&_x) { return _x.accept(_visitor); }
+auto visit(auto &&visitor, auto &&x) { return x.accept(visitor); }
 
-template <typename _VTBL, typename _VisitorStrategy,
-          typename _PimplStrategy = te2::pimpl::unique_ptr_strategy>
+template <typename VTBL_, typename VisitorStrategy,
+          typename PimplStrategy = te2::pimpl::unique_ptr_strategy>
 class base {
 private:
-  using PIMPL = typename _PimplStrategy::PIMPL;
-  using VTBL = std::decay_t<_VTBL>;
+  using PIMPL = typename PimplStrategy::PIMPL;
+  using VTBL = std::decay_t<VTBL_>;
   using PVTBL = const VTBL *;
 
   PIMPL m_pimpl;
   PVTBL m_pvtbl;
-  [[no_unique_address]] _VisitorStrategy m_visitor_strategy;
+  [[no_unique_address]] VisitorStrategy m_visitor_strategy;
 
-  template <typename _Tp> static PVTBL create_vtbl() {
-    using VP = typename _PimplStrategy::template cast_vp<_Tp>;
+  template <typename Tp> static PVTBL create_vtbl() {
+    using VP = typename PimplStrategy::template cast_vp<Tp>;
     static const VTBL vtbl = VTBL::template create<VP>();
     return &vtbl;
   }
@@ -37,42 +37,42 @@ protected:
   const auto *_pimpl() const noexcept { return m_pimpl.get(); }
   const VTBL &vtbl() const noexcept { return *m_pvtbl; }
 
-  template <typename _Tp,
+  template <typename Tp,
             typename = // To prevent overriding copy/move constructor
-            std::enable_if_t<!std::is_base_of<base, std::decay_t<_Tp>>::value>>
-  explicit base(_Tp &&_tp)
-      : m_pimpl(_PimplStrategy::make_pimpl(std::forward<_Tp>(_tp))),
-        m_pvtbl(create_vtbl<_Tp>()) {}
+            std::enable_if_t<!std::is_base_of<base, std::decay_t<Tp>>::value>>
+  explicit base(Tp &&tp)
+      : m_pimpl(PimplStrategy::make_pimpl(std::forward<Tp>(tp))),
+        m_pvtbl(create_vtbl<Tp>()) {}
 
-  base(base &&_base) noexcept = default;
-  base(const base &_base)
-      : m_pimpl(_PimplStrategy::clone_pimpl(_base.m_pimpl)),
-        m_pvtbl(_base.m_pvtbl), m_visitor_strategy(_base.m_visitor_strategy) {}
+  base(base &&) noexcept = default;
+  base(const base &rhs)
+      : m_pimpl(PimplStrategy::clone_pimpl(rhs.m_pimpl)), m_pvtbl(rhs.m_pvtbl),
+        m_visitor_strategy(rhs.m_visitor_strategy) {}
 
-  base &operator=(base &&_rhs) noexcept = default;
-  base &operator=(const base &_rhs) {
-    base copy(_rhs);
+  base &operator=(base &&) noexcept = default;
+  base &operator=(const base &rhs) {
+    base copy(rhs);
     swap(*this, copy);
     return *this;
   }
 
-  friend void swap(base &_lhs, base &_rhs) noexcept {
+  friend void swap(base &lhs, base &rhs) noexcept {
     using std::swap;
-    swap(_lhs.m_pimpl, _rhs.m_pimpl);
-    swap(_lhs.m_pvtbl, _rhs.m_pvtbl);
-    swap(_lhs.m_visitor_strategy, _rhs.m_visitor_strategy);
+    swap(lhs.m_pimpl, rhs.m_pimpl);
+    swap(lhs.m_pvtbl, rhs.m_pvtbl);
+    swap(lhs.m_visitor_strategy, rhs.m_visitor_strategy);
   }
 
 public:
   template <typename Visitor, typename... Args>
-  auto accept(Visitor &&_visitor, Args &&..._args) {
-    return m_visitor_strategy(vtbl(), _pimpl(), std::forward<Visitor>(_visitor),
-                              std::forward<Args>(_args)...);
+  auto accept(Visitor &&visitor, Args &&...args) {
+    return m_visitor_strategy(vtbl(), _pimpl(), std::forward<Visitor>(visitor),
+                              std::forward<Args>(args)...);
   }
   template <typename Visitor, typename... Args>
-  auto accept(Visitor &&_visitor, Args &&..._args) const {
-    return m_visitor_strategy(vtbl(), _pimpl(), std::forward<Visitor>(_visitor),
-                              std::forward<Args>(_args)...);
+  auto accept(Visitor &&visitor, Args &&...args) const {
+    return m_visitor_strategy(vtbl(), _pimpl(), std::forward<Visitor>(visitor),
+                              std::forward<Args>(args)...);
   }
 };
 

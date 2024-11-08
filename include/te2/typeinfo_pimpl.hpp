@@ -3,8 +3,8 @@
  *  \file te2/pimpl.hpp
  */
 
-#ifndef _TE2_TYPEINFO_PIMPL_HPP_
-#define _TE2_TYPEINFO_PIMPL_HPP_
+#ifndef TE2_TYPEINFO_PIMPL_HPP
+#define TE2_TYPEINFO_PIMPL_HPP
 
 #include <memory>
 #include <type_traits>
@@ -19,10 +19,10 @@ struct value_ti {
   size_t hc{};
 
   value_ti() : ti{typeid(void)} {}
-  value_ti(const std::type_info &_ti) : ti(_ti), hc(_ti.hash_code()) {}
+  value_ti(const std::type_info &ti_) : ti(ti_), hc(ti_.hash_code()) {}
 
-  bool operator==(const value_ti &_rhs) const noexcept {
-    return hc == _rhs.hc && ti.get() == _rhs.ti.get();
+  bool operator==(const value_ti &rhs) const noexcept {
+    return hc == rhs.hc && ti.get() == rhs.ti.get();
   }
 };
 
@@ -31,7 +31,7 @@ struct unique_ptr_strategy {
   using PIMPL = std::unique_ptr<value_concept>;
 
   struct value_concept {
-    explicit value_concept(const std::type_info &_ti) : ti(_ti) {}
+    explicit value_concept(const std::type_info &ti_) : ti(ti_) {}
     virtual ~value_concept();
     virtual PIMPL clone() const = 0;
 
@@ -45,18 +45,18 @@ struct unique_ptr_strategy {
     }
   };
 
-  template <typename _Tp> struct value_model : public value_concept {
-    template <typename _Vp,
+  template <typename Tp> struct value_model : public value_concept {
+    template <typename Vp,
               typename = // To prevent overriding copy/move constructor
               std::enable_if_t<
-                  !std::is_base_of<value_model, std::decay_t<_Vp>>::value>>
-    explicit value_model(_Vp &&_v)
-        : value_concept(typeid(_Vp)), v(std::forward<_Vp>(_v)) {
+                  !std::is_base_of<value_model, std::decay_t<Vp>>::value>>
+    explicit value_model(Vp &&vp)
+        : value_concept(typeid(Vp)), v(std::forward<Vp>(vp)) {
 #ifdef __GNUC__
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Winvalid-offsetof"
 #endif
-      static_assert(offsetof(value_model<_Tp>, v) == sizeof(value_concept));
+      static_assert(offsetof(value_model<Tp>, v) == sizeof(value_concept));
 #ifdef __GNUC__
 #pragma GCC diagnostic pop
 #endif
@@ -65,25 +65,25 @@ struct unique_ptr_strategy {
     PIMPL clone() const final {
       return unique_ptr_strategy::make_pimpl_clone(*this);
     }
-    _Tp v;
+    Tp v;
   };
 
-  template <typename _Tp, typename... _Args>
-  static auto make_pimpl(_Tp &&_x, _Args &&..._args) {
-    using TP = std::decay_t<_Tp>;
+  template <typename Tp, typename... Args>
+  static auto make_pimpl(Tp &&x, Args &&...args) {
+    using TP = std::decay_t<Tp>;
     using VP = value_model<TP>;
-    return std::make_unique<VP>(std::forward<_Tp>(_x),
-                                std::forward<_Args>(_args)...);
+    return std::make_unique<VP>(std::forward<Tp>(x),
+                                std::forward<Args>(args)...);
   }
 
-  template <typename _Vp> static auto make_pimpl_clone(const _Vp &_x) {
-    return std::make_unique<std::decay_t<_Vp>>(_x);
+  template <typename Vp> static auto make_pimpl_clone(const Vp &x) {
+    return std::make_unique<std::decay_t<Vp>>(x);
   }
 
   static PIMPL clone_pimpl(const PIMPL &_pimpl) { return _pimpl->clone(); }
 
-  template <typename _Tp> struct cast_vp {
-    using TP = std::decay_t<_Tp>;
+  template <typename Tp> struct cast_vp {
+    using TP = std::decay_t<Tp>;
     using VP = value_model<TP>;
     static const TP *ptr(const void *_p) noexcept {
       return &(static_cast<const VP *>(_p)->v);

@@ -3,8 +3,8 @@
  *  \file te/default_visitor.hpp
  */
 
-#ifndef _TE_DEFAULT_VISITOR_HPP_
-#define _TE_DEFAULT_VISITOR_HPP_
+#ifndef TE_DEFAULT_VISITOR_HPP
+#define TE_DEFAULT_VISITOR_HPP
 
 #include <memory>
 #include <type_traits>
@@ -15,39 +15,39 @@ namespace te::visitor {
 template <typename Derived, template <typename> typename VISITOR_FCT,
           class... Ts>
 struct default_visitor {
-  template <typename _Tp> struct visit_type {
-    VISITOR_FCT<_Tp> do_visit;
-    template <typename... Args> auto operator()(_Tp _x, Args &&..._args) const {
-      return do_visit(_x, std::forward<Args>(_args)...);
+  template <typename Tp> struct visit_type {
+    VISITOR_FCT<Tp> do_visit;
+    template <typename... Args> auto operator()(Tp x, Args &&...args) const {
+      return do_visit(x, std::forward<Args>(args)...);
     }
   };
-  template <class... _Ts> struct overloaded : visit_type<_Ts>... {
-    using visit_type<_Ts>::operator()...;
+  template <class... Ts_> struct overloaded : visit_type<Ts_>... {
+    using visit_type<Ts_>::operator()...;
   };
   using visitor_methods = overloaded<Ts...>;
   visitor_methods methods;
   using TYPES = std::tuple<Ts...>;
 
-  template <typename... Args> auto operator()(Args &&..._args) const {
-    return methods(std::forward<Args>(_args)...);
+  template <typename... Args> auto operator()(Args &&...args) const {
+    return methods(std::forward<Args>(args)...);
   }
 
-  template <typename _Fn> constexpr static Derived create(_Fn &&_fn) {
+  template <typename Fn> constexpr static Derived create(Fn &&fn) {
     Derived v;
 
     constexpr size_t N = std::tuple_size_v<TYPES>;
     if constexpr (N != 0)
-      create_i_n<0, N>(std::forward<_Fn>(_fn), v.methods);
+      create_i_n<0, N>(std::forward<Fn>(fn), v.methods);
 
     return v;
   }
-  template <std::size_t I, std::size_t N, typename _Fn>
-  static constexpr void create_i_n(_Fn &&_fn, visitor_methods &_vm) {
+  template <std::size_t I, std::size_t N, typename Fn>
+  static constexpr void create_i_n(Fn &&fn, visitor_methods &vm) {
     using TS = std::tuple_element_t<I, TYPES>;
     using VP = visit_type<TS>;
-    static_cast<VP &>(_vm).do_visit = _fn;
+    static_cast<VP &>(vm).do_visit = fn;
     if constexpr (I + 1 < N)
-      create_i_n<I + 1, N>(std::forward<_Fn>(_fn), _vm);
+      create_i_n<I + 1, N>(std::forward<Fn>(fn), vm);
   }
 };
 
@@ -56,11 +56,10 @@ struct default_visitor_strategy {
             class... Ts>
   using visitor = default_visitor<Derived, VISITOR_FCT, Ts...>;
 
-  template <typename _PIMPL, typename _Visitor, typename... _Args>
-  auto operator()(_PIMPL &&_pimpl, _Visitor &&_visitor,
-                  _Args &&..._args) const {
-    return _pimpl->accept_visitor(std::forward<_Visitor>(_visitor),
-                                  std::forward<_Args>(_args)...);
+  template <typename PIMPL, typename Visitor, typename... Args>
+  auto operator()(PIMPL &&_pimpl, Visitor &&_visitor, Args &&...args) const {
+    return _pimpl->accept_visitor(std::forward<Visitor>(_visitor),
+                                  std::forward<Args>(args)...);
   }
 };
 

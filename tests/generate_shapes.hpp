@@ -2,8 +2,8 @@
  *  \author  Olivia Quinet
  */
 
-#ifndef _GENERATE_SHAPES_HPP_
-#define _GENERATE_SHAPES_HPP_
+#ifndef GENERATE_SHAPES_HPP
+#define GENERATE_SHAPES_HPP
 
 #include <vector>
 

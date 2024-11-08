@@ -34,6 +34,6 @@ SCENARIO("I can benchmark std::variant+std::visit") {
   auto area_visitor = [](const auto &x) { return area(x); };
   auto perimeter_visitor = [](const auto &x) { return perimeter(x); };
 
-  BENCHMARK("get_sum_area") { get_sum_visitor(area_visitor); };
-  BENCHMARK("get_sum_perimeter") { get_sum_visitor(perimeter_visitor); };
+  BENCHMARK("get_sum_area") { return get_sum_visitor(area_visitor); };
+  BENCHMARK("get_sum_perimeter") { return get_sum_visitor(perimeter_visitor); };
 }

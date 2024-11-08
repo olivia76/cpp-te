@@ -76,3 +76,9 @@ pyenv-conan:
 .PHONY: pyenv-tests
 pyenv-tests:
 	pip3 install $(PIP_OPTIONS) gcovr
+
+.PHONY: codechecker
+codechecker:
+	rm -fr codechecker
+	CodeChecker analyze build/Release/compile_commands.json -o ./codechecker || true
+	CodeChecker parse ./codechecker -e html -o ./codechecker || true

@@ -2,8 +2,8 @@
  *  \author  Olivia Quinet
  */
 
-#ifndef _GET_SUM_HPP_
-#define _GET_SUM_HPP_
+#ifndef GET_SUM_HPP
+#define GET_SUM_HPP
 
 #include <numeric>
 

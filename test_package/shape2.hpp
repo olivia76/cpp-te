@@ -2,8 +2,8 @@
  *  \author  Olivia Quinet
  */
 
-#ifndef _SHAPE_HPP2_
-#define _SHAPE_HPP2_
+#ifndef SHAPE2_HPP
+#define SHAPE2_HPP
 
 #include <te2/default_visitor.hpp>
 #include <te2/te2.hpp>

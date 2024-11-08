@@ -2,8 +2,8 @@
  *  \author  Olivia Quinet
  */
 
-#ifndef _TRIANGLE_HPP
-#define _TRIANGLE_HPP
+#ifndef TRIANGLE_HPP
+#define TRIANGLE_HPP
 
 #include <cmath>
 #include <numbers>

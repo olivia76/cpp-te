@@ -2,8 +2,8 @@
  *  \author  Olivia Quinet
  */
 
-#ifndef _RHOMBUS_HPP
-#define _RHOMBUS_HPP
+#ifndef RHOMBUS_HPP
+#define RHOMBUS_HPP
 
 #include <cmath>
 #include <numbers>

@@ -30,12 +30,12 @@ struct ShapeConcept {
 
   virtual PIMPL clone() const = 0;
 
-  template <typename _Tp> struct model;
+  template <typename Tp> struct model;
 };
 
-template <typename _Tp> struct ShapeConcept::model : public ShapeConcept {
-  template <typename _Vp>
-  explicit model(_Vp &&_value) : value(std::forward<_Vp>(_value)) {}
+template <typename Tp> struct ShapeConcept::model : public ShapeConcept {
+  template <typename Vp>
+  explicit model(Vp &&vp) : value(std::forward<Vp>(vp)) {}
 
   double do_area() const final { return area(value); }
   double do_perimeter() const final { return perimeter(value); }
@@ -49,15 +49,14 @@ template <typename _Tp> struct ShapeConcept::model : public ShapeConcept {
 
   PIMPL clone() const final { return PIMPL_STRATEGY::make_pimpl_clone(*this); }
 
-  _Tp value;
+  Tp value;
 };
 
 using VISITOR_STRATEGY = te::visitor::default_visitor_strategy;
 using BASE = te::base<ShapeConcept, VISITOR_STRATEGY, PIMPL_STRATEGY>;
 
 struct Shape : public BASE {
-  template <typename _Vp>
-  explicit Shape(_Vp &&_value) : BASE(std::forward<_Vp>(_value)) {}
+  template <typename Vp> explicit Shape(Vp &&vp) : BASE(std::forward<Vp>(vp)) {}
 
   auto area() const { return pimpl()->do_area(); }
   auto perimeter() const { return pimpl()->do_perimeter(); }
@@ -73,13 +72,13 @@ struct Shape : public BASE {
 
 namespace pipeline_tev {
 
-template <typename _Tp> using VISITOR_FCT1 = double (*)(_Tp _x);
+template <typename Tp> using VISITOR_FCT1 = double (*)(Tp _x);
 struct Visitor1 : public VISITOR_STRATEGY::visitor<
                       Visitor1, VISITOR_FCT1, const shape::Square &,
                       const shape::Circle &, const shape::Rectangle &,
                       const shape::RightTriangle &, const shape::Rhombus &> {};
 
-template <typename _Tp> using VISITOR_FCT2 = std::function<double(_Tp _x)>;
+template <typename Tp> using VISITOR_FCT2 = std::function<double(Tp _x)>;
 struct Visitor2 : public VISITOR_STRATEGY::visitor<
                       Visitor2, VISITOR_FCT2, const shape::Square &,
                       const shape::Circle &, const shape::Rectangle &,
@@ -140,19 +139,19 @@ SCENARIO("I can benchmark type-erasure") {
   REQUIRE(get_sum_perimeter() == get_sum_visitor(perimeter_visitor1));
   REQUIRE(get_sum_perimeter() == get_sum_visitor(perimeter_visitor2));
 
-  BENCHMARK("get_sum_area") { get_sum_area(); };
-  BENCHMARK("get_sum_perimeter") { get_sum_perimeter(); };
+  BENCHMARK("get_sum_area") { return get_sum_area(); };
+  BENCHMARK("get_sum_perimeter") { return get_sum_perimeter(); };
 
   BENCHMARK("get_sum_area with visitor1") { //
-    get_sum_visitor(area_visitor1);
+    return get_sum_visitor(area_visitor1);
   };
   BENCHMARK("get_sum_perimeter with visitor1") { //
-    get_sum_visitor(perimeter_visitor1);
+    return get_sum_visitor(perimeter_visitor1);
   };
   BENCHMARK("get_sum_area with visitor2") { //
-    get_sum_visitor(area_visitor2);
+    return get_sum_visitor(area_visitor2);
   };
   BENCHMARK("get_sum_perimeter with visitor2") { //
-    get_sum_visitor(perimeter_visitor2);
+    return get_sum_visitor(perimeter_visitor2);
   };
 }

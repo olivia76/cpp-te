@@ -25,7 +25,7 @@ private:
   [[no_unique_address]] _VisitorStrategy m_visitor_strategy;
 
   template <typename _Tp> static PVTBL create_vtbl() {
-    using VP = typename _PimplStrategy::cast_vp<_Tp>;
+    using VP = typename _PimplStrategy::template cast_vp<_Tp>;
     static const VTBL vtbl = VTBL::template create<VP>();
     return &vtbl;
   }

@@ -92,10 +92,10 @@ struct type_info_visitor_strategy {
   using visitor = type_info_visitor<Derived, VISITOR_FCT, Ts...>;
 
   template <typename Visitor, typename... Args>
-  auto operator()([[maybe_unused]] const auto &_vtbl, auto *_pimpl,
-                  Visitor &&_visitor, Args &&...args) const {
-    return _visitor.call(_pimpl->ti, _pimpl->get_ptr(),
-                         std::forward<Args>(args)...);
+  auto operator()([[maybe_unused]] const auto &vtbl, auto *pimpl,
+                  Visitor &&visitor, Args &&...args) const {
+    return visitor.call(pimpl->ti, pimpl->get_ptr(),
+                        std::forward<Args>(args)...);
   }
 };
 

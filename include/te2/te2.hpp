@@ -51,16 +51,12 @@ protected:
 
   base &operator=(base &&) noexcept = default;
   base &operator=(const base &rhs) {
-    base copy(rhs);
-    swap(*this, copy);
-    return *this;
-  }
-
-  friend void swap(base &lhs, base &rhs) noexcept {
     using std::swap;
-    swap(lhs.m_pimpl, rhs.m_pimpl);
-    swap(lhs.m_pvtbl, rhs.m_pvtbl);
-    swap(lhs.m_visitor_strategy, rhs.m_visitor_strategy);
+    base copy(rhs);
+    swap(m_pimpl, copy.m_pimpl);
+    swap(m_pvtbl, copy.m_pvtbl);
+    swap(m_visitor_strategy, copy.m_visitor_strategy);
+    return *this;
   }
 
 public:

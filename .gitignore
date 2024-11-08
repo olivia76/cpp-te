@@ -11,4 +11,5 @@ build
 version.txt
 reports
 coverage
+codechecker
 puml/*.png

@@ -49,12 +49,14 @@ struct unique_ptr_strategy {
   template <typename Tp> struct cast_vp {
     using TP = std::decay_t<Tp>;
     using VP = value_model<TP>;
-    static const TP *ptr(const void *_p) noexcept {
-      return &(static_cast<const VP *>(_p)->v);
+    static const TP *ptr(const void *p) noexcept {
+      return std::addressof(value(p));
     }
-    static TP *ptr(void *_p) noexcept { return &(static_cast<VP *>(_p)->v); }
-    static const TP &value(const void *_p) noexcept { return *ptr(_p); }
-    static TP &value(void *_p) noexcept { return *ptr(_p); }
+    static TP *ptr(void *p) noexcept { return std::addressof(value(p)); }
+    static const TP &value(const void *p) noexcept {
+      return static_cast<const VP *>(p)->v;
+    }
+    static TP &value(void *p) noexcept { return static_cast<VP *>(p)->v; }
   };
 };
 

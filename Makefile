@@ -13,7 +13,7 @@ VENV_NAME := $(shell cat .python-version)
 ENABLE_TESTING := ON
 ENABLE_COVERAGE := OFF
 
-CONAN_OPTIONS := -s:b compiler.cppstd=20 -s:h compiler.cppstd=20 --profile:build=default --build=missing
+CONAN_OPTIONS := -s:b compiler.cppstd=20 -s:h compiler.cppstd=20 --profile:build=default --profile:host=default --build=missing
 PIP_OPTIONS :=
 
 .PHONY: all
@@ -38,6 +38,10 @@ build: configure
 .PHONY: tests
 tests:
 	source build/${BUILD_TYPE}/generators/conanrun.sh; cd tests; ../build/${BUILD_TYPE}/tests/tests ${TESTS}
+
+.PHONY: benchmark-quick
+benchmark-quick:
+		source build/${BUILD_TYPE}/generators/conanrun.sh; cd tests; ../build/${BUILD_TYPE}/tests/tests --benchmark-samples 10
 
 .PHONY: coverage
 coverage:

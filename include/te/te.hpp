@@ -15,7 +15,7 @@ auto visit(auto &&_visitor, auto &&_x) { return _x.accept(_visitor); }
 template <typename _Concept, typename _VisitorStrategy, typename _PimplStrategy>
 class base {
 private:
-  using PIMPL = typename _PimplStrategy::PIMPL<_Concept>;
+  using PIMPL = typename _PimplStrategy::template PIMPL<_Concept>;
 
   PIMPL m_pimpl;
   [[no_unique_address]] _VisitorStrategy m_visitor_strategy;

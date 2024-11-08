@@ -31,5 +31,4 @@ struct Visitor2 : public VISITOR_STRATEGY::visitor<
 
 } // namespace pipeline_tev2
 
-
 #endif

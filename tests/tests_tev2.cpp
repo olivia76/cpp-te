@@ -14,7 +14,9 @@
 #include "get_sum.hpp"
 
 SCENARIO("I can create instances with type-erasure with vtable") {
-  auto shape1 = pipeline_tev2::Shape(shape::Square(1));
+  using namespace pipeline_tev2;
+
+  auto shape1 = Shape(shape::Square(1));
   REQUIRE(shape1.area() == 1);
   REQUIRE(shape1.perimeter() == 4);
   auto shape2 = std::move(shape1);
@@ -24,21 +26,25 @@ SCENARIO("I can create instances with type-erasure with vtable") {
   REQUIRE(shape3.area() == 1);
   REQUIRE(shape3.perimeter() == 4);
   shape2 = shape3;
+  shape3 = Shape(shape::RightTriangle(4, 3));
   REQUIRE(shape2.area() == 1);
   REQUIRE(shape2.perimeter() == 4);
-  REQUIRE(shape3.area() == 1);
-  REQUIRE(shape3.perimeter() == 4);
+  REQUIRE(shape3.area() == 6);
+  REQUIRE(shape3.perimeter() == 12);
   shape1 = shape2;
+  shape2 = Shape(shape::Rectangle(2, 3));
   REQUIRE(shape1.area() == 1);
   REQUIRE(shape1.perimeter() == 4);
-  REQUIRE(shape2.area() == 1);
-  REQUIRE(shape2.perimeter() == 4);
-  REQUIRE(shape3.area() == 1);
-  REQUIRE(shape3.perimeter() == 4);
+  REQUIRE(shape2.area() == 6);
+  REQUIRE(shape2.perimeter() == 10);
+  REQUIRE(shape3.area() == 6);
+  REQUIRE(shape3.perimeter() == 12);
 }
 
 SCENARIO("I can benchmark type-erasure with vtable") {
-  auto shapes = generate_shapes<pipeline_tev2::Shape>();
+  using namespace pipeline_tev2;
+
+  auto shapes = generate_shapes<Shape>();
   auto get_sum_area = [&shapes]() {
     double sum{};
     for (const auto &shape : shapes)
@@ -54,16 +60,16 @@ SCENARIO("I can benchmark type-erasure with vtable") {
   auto get_sumvisitor = [&shapes](auto &&visitor) {
     double sum{};
     for (const auto &shape : shapes)
-      sum += te2::visit(visitor, shape);
+      sum += visit(visitor, shape);
     return sum;
   };
-  auto areavisitor1 =
-      pipeline_tev2::Visitor1::create([](const auto &x) { return area(x); });
-  auto perimetervisitor1 = pipeline_tev2::Visitor1::create(
+  auto areavisitor1 = Visitor1::create( //
+      [](const auto &x) { return area(x); });
+  auto perimetervisitor1 = Visitor1::create( //
       [](const auto &x) { return perimeter(x); });
-  auto areavisitor2 =
-      pipeline_tev2::Visitor2::create([](const auto &x) { return area(x); });
-  auto perimetervisitor2 = pipeline_tev2::Visitor2::create(
+  auto areavisitor2 = Visitor2::create( //
+      [](const auto &x) { return area(x); });
+  auto perimetervisitor2 = Visitor2::create( //
       [](const auto &x) { return perimeter(x); });
 
   REQUIRE(get_sum_area() == get_sumvisitor(areavisitor1));

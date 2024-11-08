@@ -7,8 +7,8 @@
 #include "square.hpp"
 #include "triangle.hpp"
 
-#include "shape_visitor.hpp"
 #include "shape2_visitor.hpp"
+#include "shape_visitor.hpp"
 
 #include <spdlog/spdlog.h>
 

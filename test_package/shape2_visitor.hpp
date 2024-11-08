@@ -2,10 +2,10 @@
  *  \author  Olivia Quinet
  */
 
-#ifndef VISITOR_HPP
-#define VISITOR_HPP
+#ifndef SHAPE2_VISITOR_HPP
+#define SHAPE2_VISITOR2_HPP
 
-#include <te/default_visitor.hpp>
+#include "shape2.hpp"
 
 #include "circle.hpp"
 #include "rectangle.hpp"
@@ -15,7 +15,7 @@
 
 #include <functional>
 
-namespace pipeline_tev {
+namespace pipeline_tev2 {
 
 template <typename _Tp> using VISITOR_FCT = std::function<double(_Tp _x)>;
 struct Visitor : public VISITOR_STRATEGY::visitor<
@@ -23,6 +23,6 @@ struct Visitor : public VISITOR_STRATEGY::visitor<
                      const shape::Circle &, const shape::Rectangle &,
                      const shape::RightTriangle &, const shape::Rhombus &> {};
 
-} // namespace pipeline_tev
+} // namespace pipeline_tev2
 
 #endif

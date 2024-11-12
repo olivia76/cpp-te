@@ -24,6 +24,9 @@ private:
   PVTBL m_pvtbl;
   [[no_unique_address]] VisitorStrategy m_visitor_strategy;
 
+  auto *raw_pimpl() noexcept { return m_pimpl.get(); }
+  const auto *raw_pimpl() const noexcept { return m_pimpl.get(); }
+
   template <typename ValueT> static PVTBL create_vtbl() {
     using CastT = typename PimplStrategy::template cast_value<ValueT>;
     static const VTBL vtbl = VTBL::template create<CastT>();
@@ -33,8 +36,6 @@ private:
 protected:
   void *pimpl() noexcept { return m_pimpl.get(); }
   const void *pimpl() const noexcept { return m_pimpl.get(); }
-  auto *_pimpl() noexcept { return m_pimpl.get(); }
-  const auto *_pimpl() const noexcept { return m_pimpl.get(); }
   const VTBL &vtbl() const noexcept { return *m_pvtbl; }
 
   template <
@@ -64,12 +65,14 @@ protected:
 public:
   template <typename Visitor, typename... Args>
   auto accept(Visitor &&visitor, Args &&...args) {
-    return m_visitor_strategy(vtbl(), _pimpl(), std::forward<Visitor>(visitor),
+    return m_visitor_strategy(vtbl(), raw_pimpl(),
+                              std::forward<Visitor>(visitor),
                               std::forward<Args>(args)...);
   }
   template <typename Visitor, typename... Args>
   auto accept(Visitor &&visitor, Args &&...args) const {
-    return m_visitor_strategy(vtbl(), _pimpl(), std::forward<Visitor>(visitor),
+    return m_visitor_strategy(vtbl(), raw_pimpl(),
+                              std::forward<Visitor>(visitor),
                               std::forward<Args>(args)...);
   }
 };

@@ -20,11 +20,12 @@ struct unique_ptr_strategy {
   };
 
   template <typename ValueT> struct value_model : public value_concept {
-    template <typename Vp,
+    template <typename Vp, typename... Args,
               typename = // To prevent overriding copy/move constructor
               std::enable_if_t<
                   !std::is_base_of<value_concept, std::decay_t<Vp>>::value>>
-    explicit value_model(Vp &&vp) : value(std::forward<Vp>(vp)) {}
+    explicit value_model(Vp &&vp, Args &&...args)
+        : value(std::forward<Vp>(vp), std::forward<Args>(args)...) {}
     value_model(const value_model &) = default;
     PIMPL clone() const final {
       return unique_ptr_strategy::make_pimpl_clone(*this);

@@ -23,8 +23,8 @@ struct shape_vtbl {
         .do_perimeter =
             [](const void *p) { return perimeter(CastT::value(p)); },
         .accept_visitor =
-            [](const void *p, const Visitor &_visitor) {
-              return _visitor(CastT::value(p));
+            [](const void *p, const Visitor &visitor) {
+              return visitor(CastT::value(p));
             },
     };
   }

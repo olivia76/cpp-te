@@ -16,18 +16,18 @@ struct Visitor2;
 struct shape_vtbl {
   double (*do_area)(const void *);
   double (*do_perimeter)(const void *);
-  double (*_accept_visitor1)(const void *, const Visitor1 &);
-  double (*_accept_visitor2)(const void *, const Visitor2 &);
+  double (*accept_visitor1)(const void *, const Visitor1 &);
+  double (*accept_visitor2)(const void *, const Visitor2 &);
 
   template <typename... Args>
   auto accept_visitor(auto *pimpl, const Visitor1 &visitor,
                       Args &&...args) const {
-    return (*_accept_visitor1)(pimpl, visitor, std::forward<Args>(args)...);
+    return (*accept_visitor1)(pimpl, visitor, std::forward<Args>(args)...);
   }
   template <typename... Args>
   auto accept_visitor(auto *pimpl, const Visitor2 &visitor,
                       Args &&...args) const {
-    return (*_accept_visitor2)(pimpl, visitor, std::forward<Args>(args)...);
+    return (*accept_visitor2)(pimpl, visitor, std::forward<Args>(args)...);
   }
 
   template <typename CastT> static shape_vtbl create() {
@@ -35,11 +35,11 @@ struct shape_vtbl {
         .do_area = [](const void *p) { return area(CastT::value(p)); },
         .do_perimeter =
             [](const void *p) { return perimeter(CastT::value(p)); },
-        ._accept_visitor1 =
+        .accept_visitor1 =
             [](const void *p, const Visitor1 &visitor) {
               return visitor(CastT::value(p));
             },
-        ._accept_visitor2 =
+        .accept_visitor2 =
             [](const void *p, const Visitor2 &visitor) {
               return visitor(CastT::value(p));
             },

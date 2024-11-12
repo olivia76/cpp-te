@@ -5,33 +5,30 @@
 #ifndef SHAPE2_HPP
 #define SHAPE2_HPP
 
-#include <te2/default_visitor.hpp>
-#include <te2/te2.hpp>
+#include "te2/te2.hpp"
+#include "te2/typeinfo_visitor.hpp"
 
 namespace pipeline_tev2 {
 
-struct Visitor;
+struct Visitor1;
+struct Visitor2;
 
 struct shape_vtbl {
   double (*do_area)(const void *);
   double (*do_perimeter)(const void *);
-  double (*accept_visitor)(const void *, const Visitor &);
 
   template <typename CastT> static shape_vtbl create() {
     return {
         .do_area = [](const void *p) { return area(CastT::value(p)); },
         .do_perimeter =
             [](const void *p) { return perimeter(CastT::value(p)); },
-        .accept_visitor =
-            [](const void *p, const Visitor &_visitor) {
-              return _visitor(CastT::value(p));
-            },
     };
   }
 };
 
-using VISITOR_STRATEGY = te2::visitor::default_visitor_strategy;
-using BASE = te2::base<shape_vtbl, VISITOR_STRATEGY>;
+using VISITOR_STRATEGY = te2::visitor::type_info_visitor_strategy;
+using BASE = te2::base<shape_vtbl, VISITOR_STRATEGY,
+                       te2::type_info_pimpl::unique_ptr_strategy>;
 struct Shape : public BASE {
   template <typename ShapeT>
   explicit Shape(ShapeT &&shape) : BASE(std::forward<ShapeT>(shape)) {}

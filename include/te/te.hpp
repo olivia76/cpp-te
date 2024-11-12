@@ -20,10 +20,10 @@ private:
   PIMPL m_pimpl;
   [[no_unique_address]] VisitorStrategy m_visitor_strategy;
 
-  template <typename Tp, typename... Args>
-  static PIMPL create_pimpl(Tp &&tp, Args &&...args) {
-    using MP = typename Concept::template model<std::decay_t<Tp>>;
-    return PimplStrategy::template make_pimpl<MP>(std::forward<Tp>(tp),
+  template <typename ValueT, typename... Args>
+  static PIMPL create_pimpl(ValueT &&value, Args &&...args) {
+    using MP = typename Concept::template model<std::decay_t<ValueT>>;
+    return PimplStrategy::template make_pimpl<MP>(std::forward<ValueT>(value),
                                                   std::forward<Args>(args)...);
   }
 
@@ -31,12 +31,13 @@ protected:
   const PIMPL &pimpl() const noexcept { return m_pimpl; }
   PIMPL &pimpl() noexcept { return m_pimpl; }
 
-  template <typename Tp, typename... Args,
-            typename = // To prevent overriding copy/move constructor
-            std::enable_if_t<!std::is_base_of<base, std::decay_t<Tp>>::value>>
-  explicit base(Tp &&tp, Args &&...args)
-      : m_pimpl(
-            create_pimpl(std::forward<Tp>(tp), std::forward<Args>(args)...)) {}
+  template <
+      typename ValueT, typename... Args,
+      typename = // To prevent overriding copy/move constructor
+      std::enable_if_t<!std::is_base_of<base, std::decay_t<ValueT>>::value>>
+  explicit base(ValueT &&value, Args &&...args)
+      : m_pimpl(create_pimpl(std::forward<ValueT>(value),
+                             std::forward<Args>(args)...)) {}
 
   base(base &&_rhs) noexcept = default;
   base(const base &rhs)

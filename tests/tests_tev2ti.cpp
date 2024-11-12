@@ -7,13 +7,13 @@
 
 #include <random>
 
-#include "shape2.hpp"
 #include "shape2_visitor.hpp"
+#include "shape2ti.hpp"
 
 #include "generate_shapes.hpp"
 #include "get_sum.hpp"
 
-SCENARIO("I can create instances with type-erasure with vtable") {
+SCENARIO("I can create instances with type-erasure with vtable+ti") {
   using namespace pipeline_tev2;
 
   auto shape1 = Shape(shape::Square(1));
@@ -51,7 +51,7 @@ SCENARIO("I can create instances with type-erasure with vtable") {
   };
 }*/
 
-SCENARIO("I can benchmark type-erasure with vtable") {
+SCENARIO("I can benchmark type-erasure with vtable+ti") {
   using namespace pipeline_tev2;
 
   auto shapes = generate_shapes<Shape>();
@@ -91,16 +91,16 @@ SCENARIO("I can benchmark type-erasure with vtable") {
   BENCHMARK("get_sum_area") { return get_sum_area(); };
   BENCHMARK("get_sum_perimeter") { return get_sum_perimeter(); };
 
-  BENCHMARK("get_sum_area with visitor (fct ptr)") {
+  BENCHMARK("get_sum_area with visitor+ti (fct ptr)") {
     return get_sumvisitor(areavisitor1);
   };
-  BENCHMARK("get_sum_perimeter with visitor (fct ptr)") {
+  BENCHMARK("get_sum_perimeter with visitor+ti (fct ptr)") {
     return get_sumvisitor(perimetervisitor1);
   };
-  BENCHMARK("get_sum_area with visitor (std::function)") {
+  BENCHMARK("get_sum_area with visitor+ti (std::function)") {
     return get_sumvisitor(areavisitor2);
   };
-  BENCHMARK("get_sum_perimeter with visitor (std::function)") {
+  BENCHMARK("get_sum_perimeter with visitor+ti (std::function)") {
     return get_sumvisitor(perimetervisitor2);
   };
 }

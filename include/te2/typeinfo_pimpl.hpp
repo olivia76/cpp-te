@@ -22,7 +22,9 @@ struct value_ti {
   value_ti(const std::type_info &ti_) : ti(ti_), hc(ti_.hash_code()) {}
 
   bool operator==(const value_ti &rhs) const noexcept {
-    return hc == rhs.hc && ti.get() == rhs.ti.get();
+    // Experimental : Two different types can have the same hash_code!!!  Remove
+    // the commented part if needed.
+    return hc == rhs.hc /*&& ti.get() == rhs.ti.get()*/;
   }
 };
 
@@ -45,18 +47,19 @@ struct unique_ptr_strategy {
     }
   };
 
-  template <typename Tp> struct value_model : public value_concept {
+  template <typename ValueT> struct value_model : public value_concept {
     template <typename Vp,
               typename = // To prevent overriding copy/move constructor
               std::enable_if_t<
-                  !std::is_base_of<value_model, std::decay_t<Vp>>::value>>
+                  !std::is_base_of<value_concept, std::decay_t<Vp>>::value>>
     explicit value_model(Vp &&vp)
-        : value_concept(typeid(Vp)), v(std::forward<Vp>(vp)) {
+        : value_concept(typeid(Vp)), value(std::forward<Vp>(vp)) {
 #ifdef __GNUC__
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Winvalid-offsetof"
 #endif
-      static_assert(offsetof(value_model<Tp>, v) == sizeof(value_concept));
+      static_assert(offsetof(value_model<ValueT>, value) ==
+                    sizeof(value_concept));
 #ifdef __GNUC__
 #pragma GCC diagnostic pop
 #endif
@@ -65,14 +68,14 @@ struct unique_ptr_strategy {
     PIMPL clone() const final {
       return unique_ptr_strategy::make_pimpl_clone(*this);
     }
-    Tp v;
+    ValueT value;
   };
 
-  template <typename Tp, typename... Args>
-  static auto make_pimpl(Tp &&x, Args &&...args) {
-    using TP = std::decay_t<Tp>;
-    using VP = value_model<TP>;
-    return std::make_unique<VP>(std::forward<Tp>(x),
+  template <typename ValueT, typename... Args>
+  static auto make_pimpl(ValueT &&x, Args &&...args) {
+    using VT = std::decay_t<ValueT>;
+    using VM = value_model<VT>;
+    return std::make_unique<VM>(std::forward<ValueT>(x),
                                 std::forward<Args>(args)...);
   }
 
@@ -82,17 +85,17 @@ struct unique_ptr_strategy {
 
   static PIMPL clone_pimpl(const PIMPL &_pimpl) { return _pimpl->clone(); }
 
-  template <typename Tp> struct cast_vp {
-    using TP = std::decay_t<Tp>;
-    using VP = value_model<TP>;
-    static const TP *ptr(const void *p) noexcept {
+  template <typename ValueT> struct cast_value {
+    using VT = std::decay_t<ValueT>;
+    using VM = value_model<VT>;
+    static const VT *ptr(const void *p) noexcept {
       return std::addressof(value(p));
     }
-    static TP *ptr(void *p) noexcept { return std::addressof(value(p)); }
-    static const TP &value(const void *p) noexcept {
-      return static_cast<const VP *>(p)->v;
+    static VT *ptr(void *p) noexcept { return std::addressof(value(p)); }
+    static const VT &value(const void *p) noexcept {
+      return static_cast<const VM *>(p)->value;
     }
-    static TP &value(void *p) noexcept { return static_cast<VP *>(p)->v; }
+    static VT &value(void *p) noexcept { return static_cast<VM *>(p)->value; }
   };
 };
 

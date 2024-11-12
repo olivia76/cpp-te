@@ -28,33 +28,34 @@ struct ShapeConcept {
 
   virtual PIMPL clone() const = 0;
 
-  template <typename Tp> struct model;
+  template <typename ShapeT> struct model;
 };
 
-template <typename Tp> struct ShapeConcept::model : public ShapeConcept {
+template <typename ShapeT> struct ShapeConcept::model : public ShapeConcept {
   template <typename Vp>
-  explicit model(Vp &&vp) : value(std::forward<Vp>(vp)) {}
+  explicit model(Vp &&vp) : shape(std::forward<Vp>(vp)) {}
 
-  double do_area() const final { return area(value); }
-  double do_perimeter() const final { return perimeter(value); }
+  double do_area() const final { return area(shape); }
+  double do_perimeter() const final { return perimeter(shape); }
 
-  double accept_visitor(const Visitor1 &_visitor) const final {
-    return _visitor(value);
+  double accept_visitor(const Visitor1 &visitor) const final {
+    return visitor(shape);
   }
-  double accept_visitor(const Visitor2 &_visitor) const final {
-    return _visitor(value);
+  double accept_visitor(const Visitor2 &visitor) const final {
+    return visitor(shape);
   }
 
   PIMPL clone() const final { return PIMPL_STRATEGY::make_pimpl_clone(*this); }
 
-  Tp value;
+  ShapeT shape;
 };
 
 using VISITOR_STRATEGY = te::visitor::default_visitor_strategy;
 using BASE = te::base<ShapeConcept, VISITOR_STRATEGY, PIMPL_STRATEGY>;
 
 struct Shape : public BASE {
-  template <typename Vp> explicit Shape(Vp &&vp) : BASE(std::forward<Vp>(vp)) {}
+  template <typename ShapeT>
+  explicit Shape(ShapeT &&shape) : BASE(std::forward<ShapeT>(shape)) {}
 
   auto area() const { return pimpl()->do_area(); }
   auto perimeter() const { return pimpl()->do_perimeter(); }

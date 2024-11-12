@@ -72,16 +72,16 @@ SCENARIO("I can benchmark type-erasure") {
   BENCHMARK("get_sum_area") { return get_sum_area(); };
   BENCHMARK("get_sum_perimeter") { return get_sum_perimeter(); };
 
-  BENCHMARK("get_sum_area with visitor1") { //
+  BENCHMARK("get_sum_area with visitor (fct ptr)") { //
     return get_sum_visitor(area_visitor1);
   };
-  BENCHMARK("get_sum_perimeter with visitor1") { //
+  BENCHMARK("get_sum_perimeter with visitor (fct ptr)") { //
     return get_sum_visitor(perimeter_visitor1);
   };
-  BENCHMARK("get_sum_area with visitor2") { //
+  BENCHMARK("get_sum_area with visitor (std::function)") { //
     return get_sum_visitor(area_visitor2);
   };
-  BENCHMARK("get_sum_perimeter with visitor2") { //
+  BENCHMARK("get_sum_perimeter with visitor (std::function)") { //
     return get_sum_visitor(perimeter_visitor2);
   };
 }

@@ -7,6 +7,7 @@ find_package(spdlog)
 add_executable(tests
 tests_tev.cpp
 tests_tev2.cpp
+tests_tev2ti.cpp
 tests_vv.cpp
 )
 

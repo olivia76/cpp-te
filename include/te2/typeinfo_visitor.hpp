@@ -14,11 +14,11 @@
 
 namespace te2::visitor {
 
-template <typename Derived, template <typename> typename VISITOR_FCT,
-          class... Ts>
+template <typename Derived,
+          template <typename> typename VisitorCallableTemplate, class... Ts>
 struct type_info_visitor {
   template <typename Tp> struct visit_type {
-    VISITOR_FCT<Tp> do_visit;
+    VisitorCallableTemplate<Tp> do_visit;
     te2::type_info_pimpl::value_ti ti{};
     template <typename... Args> auto operator()(Tp x, Args &&...args) const {
       return do_visit(x, std::forward<Args>(args)...);
@@ -87,9 +87,9 @@ struct type_info_visitor {
 };
 
 struct type_info_visitor_strategy {
-  template <typename Derived, template <typename> typename VISITOR_FCT,
-            class... Ts>
-  using visitor = type_info_visitor<Derived, VISITOR_FCT, Ts...>;
+  template <typename Derived,
+            template <typename> typename VisitorCallableTemplate, class... Ts>
+  using visitor = type_info_visitor<Derived, VisitorCallableTemplate, Ts...>;
 
   template <typename Visitor, typename... Args>
   auto operator()([[maybe_unused]] const auto &vtbl, auto *pimpl,

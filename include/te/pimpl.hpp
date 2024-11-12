@@ -11,10 +11,10 @@
 namespace te::pimpl {
 
 struct unique_ptr_strategy {
-  template <typename Tp> using PIMPL = std::unique_ptr<Tp>;
-  template <typename Vp, typename Tp, typename... Args>
-  static auto make_pimpl(Tp &&x, Args &&...args) {
-    return std::make_unique<Vp>(std::forward<Tp>(x),
+  template <typename Vp> using PIMPL = std::unique_ptr<Vp>;
+  template <typename Vp, typename ValueT, typename... Args>
+  static auto make_pimpl(ValueT &&x, Args &&...args) {
+    return std::make_unique<Vp>(std::forward<ValueT>(x),
                                 std::forward<Args>(args)...);
   }
 

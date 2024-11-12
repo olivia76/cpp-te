@@ -12,11 +12,11 @@
 
 namespace te2::visitor {
 
-template <typename Derived, template <typename> typename VISITOR_FCT,
-          class... Ts>
+template <typename Derived,
+          template <typename> typename VisitorCallableTemplate, class... Ts>
 struct default_visitor {
   template <typename Tp> struct visit_type {
-    VISITOR_FCT<Tp> do_visit;
+    VisitorCallableTemplate<Tp> do_visit;
     template <typename... Args> auto operator()(Tp x, Args &&...args) const {
       return do_visit(x, std::forward<Args>(args)...);
     }
@@ -52,9 +52,9 @@ struct default_visitor {
 };
 
 struct default_visitor_strategy {
-  template <typename Derived, template <typename> typename VISITOR_FCT,
-            class... Ts>
-  using visitor = default_visitor<Derived, VISITOR_FCT, Ts...>;
+  template <typename Derived,
+            template <typename> typename VisitorCallableTemplate, class... Ts>
+  using visitor = default_visitor<Derived, VisitorCallableTemplate, Ts...>;
 
   template <typename Visitor, typename... Args>
   auto operator()(const auto &vtbl, auto *pimpl, Visitor &&visitor,

@@ -24,9 +24,9 @@ private:
   PVTBL m_pvtbl;
   [[no_unique_address]] VisitorStrategy m_visitor_strategy;
 
-  template <typename Tp> static PVTBL create_vtbl() {
-    using VP = typename PimplStrategy::template cast_vp<Tp>;
-    static const VTBL vtbl = VTBL::template create<VP>();
+  template <typename ValueT> static PVTBL create_vtbl() {
+    using CastT = typename PimplStrategy::template cast_value<ValueT>;
+    static const VTBL vtbl = VTBL::template create<CastT>();
     return &vtbl;
   }
 
@@ -37,12 +37,13 @@ protected:
   const auto *_pimpl() const noexcept { return m_pimpl.get(); }
   const VTBL &vtbl() const noexcept { return *m_pvtbl; }
 
-  template <typename Tp,
-            typename = // To prevent overriding copy/move constructor
-            std::enable_if_t<!std::is_base_of<base, std::decay_t<Tp>>::value>>
-  explicit base(Tp &&tp)
-      : m_pimpl(PimplStrategy::make_pimpl(std::forward<Tp>(tp))),
-        m_pvtbl(create_vtbl<Tp>()) {}
+  template <
+      typename ValueT,
+      typename = // To prevent overriding copy/move constructor
+      std::enable_if_t<!std::is_base_of<base, std::decay_t<ValueT>>::value>>
+  explicit base(ValueT &&tp)
+      : m_pimpl(PimplStrategy::make_pimpl(std::forward<ValueT>(tp))),
+        m_pvtbl(create_vtbl<ValueT>()) {}
 
   base(base &&) noexcept = default;
   base(const base &rhs)

@@ -78,7 +78,7 @@ runs:
         OpenCppCoverage.exe --config_file=..\\OpenCppCoverage.cfg --cover_children --optimized_build --continue_after_cpp_exception -- ctest -C $BUILD_TYPE --output-on-failure -E 'When I read a file'
 
     - name: Publish to codecov
-      uses: codecov/codecov-action@main
+      uses: codecov/codecov-action@v4
       with:
         flags: unittests-${{ runner.os }}
         name: ${{ runner.os }}-coverage

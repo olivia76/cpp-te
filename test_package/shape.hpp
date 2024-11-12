@@ -31,7 +31,7 @@ struct ShapeConcept {
 
 template <typename ShapeT> struct ShapeConcept::model : public ShapeConcept {
   template <typename Vp>
-  explicit model(Vp &&vp) : shape(std::forward<_Vp>(vp)) {}
+  explicit model(Vp &&vp) : shape(std::forward<Vp>(vp)) {}
 
   double do_area() const final { return area(shape); }
   double do_perimeter() const final { return perimeter(shape); }

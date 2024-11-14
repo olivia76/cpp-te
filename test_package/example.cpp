@@ -1,5 +1,8 @@
 #include "shape.hpp"
+#include "shape_visitor.hpp"
+
 #include "shape2.hpp"
+#include "shape2_visitor.hpp"
 
 #include "circle.hpp"
 #include "rectangle.hpp"
@@ -7,14 +10,11 @@
 #include "square.hpp"
 #include "triangle.hpp"
 
-#include "shape2_visitor.hpp"
-#include "shape_visitor.hpp"
+#include "opengldrawer.hpp"
 
 #include <spdlog/spdlog.h>
 
 #include <vector>
-
-#include "opengldrawer.hpp"
 
 int main() {
   using namespace pipeline_tev;

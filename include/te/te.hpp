@@ -10,7 +10,9 @@
 
 namespace te {
 
-auto visit(auto &&visitor, auto &&x) { return x.accept(visitor); }
+template <typename... Args> auto visit(auto &&visitor, auto &&x, Args... args) {
+  return x.accept(visitor, std::forward<Args>(args)...);
+}
 
 template <typename Concept, typename VisitorStrategy, typename PimplStrategy>
 class base {

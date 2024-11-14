@@ -29,6 +29,12 @@ struct Visitor2 : public VISITOR_STRATEGY::visitor<
                       const shape::Circle &, const shape::Rectangle &,
                       const shape::RightTriangle &, const shape::Rhombus &> {};
 
+template <typename Tp> using VISITOR_FCT3 = std::function<void(Tp x, void *)>;
+struct Visitor3 : public VISITOR_STRATEGY::visitor<
+                      Visitor3, VISITOR_FCT3, const shape::Square &,
+                      const shape::Circle &, const shape::Rectangle &,
+                      const shape::RightTriangle &, const shape::Rhombus &> {};
+
 } // namespace pipeline_tev2
 
 #endif

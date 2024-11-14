@@ -81,12 +81,30 @@ SCENARIO("I can benchmark type-erasure with vtable") {
       [](const auto &x) { return area(x); });
   auto perimetervisitor2 =
       Visitor2::create([](const auto &x) { return perimeter(x); });
+
+  auto get_sumvisitor3 = [&shapes](auto &&visitor) {
+    double sum{};
+    for (const auto &shape : shapes) {
+      visit(visitor, shape, &sum);
+    }
+    return sum;
+  };
+
+  auto areavisitor3 = Visitor3::create( //
+      [](const auto &x, void *result) {
+        *static_cast<double *>(result) += area(x);
+      });
+  auto perimetervisitor3 = Visitor3::create([](const auto &x, void *result) {
+    *static_cast<double *>(result) += perimeter(x);
+  });
   // auto perimetervisitor2 = Visitor2::create(ComputePerimeter{});
 
   REQUIRE(get_sum_area() == get_sumvisitor(areavisitor1));
   REQUIRE(get_sum_area() == get_sumvisitor(areavisitor2));
+  REQUIRE(get_sum_area() == get_sumvisitor3(areavisitor3));
   REQUIRE(get_sum_perimeter() == get_sumvisitor(perimetervisitor1));
   REQUIRE(get_sum_perimeter() == get_sumvisitor(perimetervisitor2));
+  REQUIRE(get_sum_perimeter() == get_sumvisitor3(perimetervisitor3));
 
   BENCHMARK("get_sum_area") { return get_sum_area(); };
   BENCHMARK("get_sum_perimeter") { return get_sum_perimeter(); };
@@ -102,5 +120,11 @@ SCENARIO("I can benchmark type-erasure with vtable") {
   };
   BENCHMARK("get_sum_perimeter with visitor (std::function)") {
     return get_sumvisitor(perimetervisitor2);
+  };
+  BENCHMARK("get_sum_area with visitor3 (std::function)") {
+    return get_sumvisitor3(areavisitor3);
+  };
+  BENCHMARK("get_sum_perimeter with visitor3 (std::function)") {
+    return get_sumvisitor3(perimetervisitor3);
   };
 }

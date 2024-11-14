@@ -15,7 +15,7 @@ struct Visitor;
 struct shape_vtbl {
   double (*do_area)(const void *);
   double (*do_perimeter)(const void *);
-  double (*accept_visitor)(const void *, const Visitor &);
+  void (*accept_visitor)(const void *, const Visitor &);
 
   template <typename CastT> static shape_vtbl create() {
     return {
@@ -24,7 +24,7 @@ struct shape_vtbl {
             [](const void *p) { return perimeter(CastT::value(p)); },
         .accept_visitor =
             [](const void *p, const Visitor &visitor) {
-              return visitor(CastT::value(p));
+              visitor(CastT::value(p));
             },
     };
   }
@@ -34,7 +34,7 @@ using VISITOR_STRATEGY = te2::visitor::default_visitor_strategy;
 using BASE = te2::base<shape_vtbl, VISITOR_STRATEGY>;
 struct Shape : public BASE {
   template <typename ShapeT>
-  explicit Shape(ShapeT &&shape) : BASE(std::forward<ShapeT>(shape)) {}
+  Shape(ShapeT &&shape) : BASE(std::forward<ShapeT>(shape)) {}
 
   auto area() const { return vtbl().do_area(pimpl()); }
   auto perimeter() const { return vtbl().do_perimeter(pimpl()); }

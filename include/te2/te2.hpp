@@ -10,7 +10,9 @@
 
 namespace te2 {
 
-auto visit(auto &&visitor, auto &&x) { return x.accept(visitor); }
+template <typename... Args> auto visit(auto &&visitor, auto &&x, Args... args) {
+  return x.accept(visitor, std::forward<Args>(args)...);
+}
 
 template <typename VTBL_, typename VisitorStrategy,
           typename PimplStrategy = te2::pimpl::unique_ptr_strategy>

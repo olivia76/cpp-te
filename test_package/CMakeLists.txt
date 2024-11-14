@@ -12,6 +12,6 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 find_package(cppte REQUIRED COMPONENTS Devel)
 find_package(spdlog)
 
-add_executable(example example.cpp shape.cpp)
+add_executable(example example.cpp shape.cpp opengldrawer.cpp)
 target_link_libraries(example PRIVATE cppte::cppte spdlog::spdlog
 )

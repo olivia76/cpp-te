@@ -17,7 +17,7 @@
 
 namespace pipeline_tev2 {
 
-template <typename _Tp> using VISITOR_FCT = std::function<double(_Tp _x)>;
+template <typename _Tp> using VISITOR_FCT = std::function<void(_Tp _x)>;
 struct Visitor : public VISITOR_STRATEGY::visitor<
                      Visitor, VISITOR_FCT, const shape::Square &,
                      const shape::Circle &, const shape::Rectangle &,

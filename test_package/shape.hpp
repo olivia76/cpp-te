@@ -22,7 +22,7 @@ struct ShapeConcept {
   virtual double do_area() const = 0;
   virtual double do_perimeter() const = 0;
 
-  virtual double accept_visitor(const Visitor &_visitor) const = 0;
+  virtual void accept_visitor(const Visitor &_visitor) const = 0;
 
   virtual PIMPL clone() const = 0;
 
@@ -36,9 +36,7 @@ template <typename ShapeT> struct ShapeConcept::model : public ShapeConcept {
   double do_area() const final { return area(shape); }
   double do_perimeter() const final { return perimeter(shape); }
 
-  double accept_visitor(const Visitor &visitor) const final {
-    return visitor(shape);
-  }
+  void accept_visitor(const Visitor &visitor) const final { visitor(shape); }
 
   PIMPL clone() const final { return PIMPL_STRATEGY::make_pimpl_clone(*this); }
 
@@ -50,7 +48,7 @@ using BASE = te::base<ShapeConcept, VISITOR_STRATEGY, PIMPL_STRATEGY>;
 
 struct Shape : public BASE {
   template <typename ShapeT>
-  explicit Shape(ShapeT &&shape) : BASE(std::forward<ShapeT>(shape)) {}
+  Shape(ShapeT &&shape) : BASE(std::forward<ShapeT>(shape)) {}
 
   auto area() const { return pimpl()->do_area(); }
   auto perimeter() const { return pimpl()->do_perimeter(); }

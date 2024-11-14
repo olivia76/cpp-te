@@ -12,34 +12,34 @@
 
 #include <spdlog/spdlog.h>
 
+#include <vector>
+
+#include "opengldrawer.hpp"
+
 int main() {
-  {
-    using namespace pipeline_tev;
+  using namespace pipeline_tev;
+  // using namespace pipeline_tev2;
 
-    auto shape1 = Shape(shape::Circle(1));
-    auto area_visitor = Visitor::create( //
-        [](const auto &x) { return area(x); });
-    auto perimeter_visitor = Visitor::create( //
-        [](const auto &x) { return perimeter(x); });
+  using Shapes = std::vector<Shape>;
 
-    spdlog::info("area: {} with visitor: {}", shape1.area(),
-                 visit(area_visitor, shape1));
-    spdlog::info("perimeter: {} with visitor: {}", shape1.perimeter(),
-                 visit(perimeter_visitor, shape1));
+  auto shapes =
+      Shapes{shape::Circle(1), shape::Square(2), shape::Rectangle(3, 4),
+             shape::RightTriangle(5, 6), shape::Rhombus(7, 8)};
+
+  // Accessing interface methods
+  for (const auto &shape : shapes) {
+    spdlog::info("Area: {}", shape.area());
+    spdlog::info("Perimeter: {}", shape.perimeter());
   }
+
+  // Using the visitor to draw shapes
   {
-    using namespace pipeline_tev2;
-
-    auto shape1 = Shape(shape::Circle(1));
-    auto area_visitor = Visitor::create( //
-        [](const auto &x) { return area(x); });
-    auto perimeter_visitor = Visitor::create( //
-        [](const auto &x) { return perimeter(x); });
-
-    spdlog::info("area: {} with visitor: {}", shape1.area(),
-                 visit(area_visitor, shape1));
-    spdlog::info("perimeter: {} with visitor: {}", shape1.perimeter(),
-                 visit(perimeter_visitor, shape1));
+    OpenGlDrawer drawer;
+    auto openGLdrawer_visitor =
+        Visitor::create([&drawer](const auto &shape) { drawer(shape); });
+    for (const auto &shape : shapes) {
+      visit(openGLdrawer_visitor, shape);
+    }
   }
 
   return 0;

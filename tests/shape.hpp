@@ -55,7 +55,7 @@ using BASE = te::base<ShapeConcept, VISITOR_STRATEGY, PIMPL_STRATEGY>;
 
 struct Shape : public BASE {
   template <typename ShapeT>
-  explicit Shape(ShapeT &&shape) : BASE(std::forward<ShapeT>(shape)) {}
+  Shape(ShapeT &&shape) : BASE(std::forward<ShapeT>(shape)) {}
 
   auto area() const { return pimpl()->do_area(); }
   auto perimeter() const { return pimpl()->do_perimeter(); }

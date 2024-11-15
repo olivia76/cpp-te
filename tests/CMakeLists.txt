@@ -5,10 +5,10 @@ include(Catch)
 find_package(spdlog)
 
 add_executable(tests
-tests_tev.cpp
-tests_tev2.cpp
-tests_tev2ti.cpp
-tests_vv.cpp
+benchmark/tests_tev.cpp
+benchmark/tests_tev2.cpp
+benchmark/tests_tev2ti.cpp
+benchmark/tests_vv.cpp
 )
 
 target_link_libraries(tests

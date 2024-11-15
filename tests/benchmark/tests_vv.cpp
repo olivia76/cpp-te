@@ -7,11 +7,11 @@
 
 #include <random>
 
-#include "circle.hpp"
-#include "rectangle.hpp"
-#include "rhombus.hpp"
-#include "square.hpp"
-#include "triangle.hpp"
+#include "shape/circle.hpp"
+#include "shape/rectangle.hpp"
+#include "shape/rhombus.hpp"
+#include "shape/square.hpp"
+#include "shape/triangle.hpp"
 
 #include <variant>
 

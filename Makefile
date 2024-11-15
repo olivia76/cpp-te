@@ -54,7 +54,7 @@ conan-package:
 	export CONAN_REVISIONS_ENABLED=1; export LD_LIBRARY_PATH=.:$$LD_LIBRARY_PATH; conan create . ${CONAN_OPTIONS} --build-require #--format=json
 
 clang-format:
-	clang-format --verbose -i $(shell find include src tests test_package -name '*pp') --style=LLVM
+	clang-format --verbose -i $(shell find demo include src tests test_package -name '*pp') --style=LLVM
 
 .PHONY: pyenv pyenv-download pyenv-python pyenv-venv
 pyenv: pyenv-download pyenv-python pyenv-venv
@@ -86,3 +86,7 @@ codechecker:
 	rm -fr codechecker
 	CodeChecker analyze build/Release/compile_commands.json -o ./codechecker || true
 	CodeChecker parse ./codechecker -e html -o ./codechecker || true
+
+.PHONY: run-demo
+run-demo:
+	source build/${BUILD_TYPE}/generators/conanrun.sh; build/${BUILD_TYPE}/demo/demo

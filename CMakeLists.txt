@@ -60,7 +60,7 @@ include(cmake/StaticAnalyzers.cmake)
 
 add_subdirectory(src)
 
-add_subdirectory(demo)
+#add_subdirectory(demo)
 
 if(ENABLE_TESTING)
   enable_testing()

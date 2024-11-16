@@ -9,6 +9,7 @@
 .#*
 build
 version.txt
+package.txt
 reports
 coverage
 codechecker

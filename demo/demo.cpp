@@ -7,18 +7,18 @@
 using namespace pipeline;
 using Animals = std::vector<Animal>;
 
-void make_sounds(const Animals& animals) {
+void make_sounds(const Animals &animals) {
   std::cout << "Is it my cow?" << std::endl;
-  for(const auto& animal: animals)
+  for (const auto &animal : animals)
     animal.make_sound();
 }
 
 #include "animal2_visitor.hpp"
 
-void draw_animals(const Animals& animals, const Visitor& drawer_visitor) {
+void draw_animals(const Animals &animals, const Visitor &drawer_visitor) {
   std::cout << std::endl << "Let's draw our animals..." << std::endl;
   for (const auto &animal : animals) {
-      visit(drawer_visitor, animal);
+    visit(drawer_visitor, animal);
   }
 }
 
@@ -33,7 +33,7 @@ int main() {
 
   OpenGlDrawer drawer;
   auto openGLdrawer_visitor =
-        Visitor::create([&drawer](const auto &shape) { drawer(shape); });
+      Visitor::create([&drawer](const auto &shape) { drawer(shape); });
   draw_animals(animals, openGLdrawer_visitor);
 
   return 0;

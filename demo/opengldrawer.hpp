@@ -5,8 +5,8 @@
 #ifndef OPENGLDRAWER_HPP
 #define OPENGLDRAWER_HPP
 
-#include "sheep.hpp"
 #include "cow.hpp"
+#include "sheep.hpp"
 
 class OpenGlDrawer {
 public:

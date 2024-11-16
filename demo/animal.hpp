@@ -34,7 +34,9 @@ template <typename AnimalT> struct AnimalConcept::model : public AnimalConcept {
 
   void do_make_sound() const final { make_sound(animal); }
 
-  void accept_visitor(const Visitor &visitor) const final { return visitor(animal); }
+  void accept_visitor(const Visitor &visitor) const final {
+    return visitor(animal);
+  }
 
   PIMPL clone() const final { return PIMPL_STRATEGY::make_pimpl_clone(*this); }
 

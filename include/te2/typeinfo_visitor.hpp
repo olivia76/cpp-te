@@ -14,12 +14,12 @@
 
 namespace te2::visitor {
 
-template <typename Derived,
-          template <typename> typename VisitorCallableTemplate, class... Ts>
+template <template <typename> typename VisitorCallableTemplate, class... Ts>
 struct type_info_visitor {
   template <typename Tp> struct visit_type {
     VisitorCallableTemplate<Tp> do_visit;
-    te2::type_info_pimpl::value_ti ti{};
+    const te2::type_info_pimpl::value_ti ti =
+        te2::type_info_pimpl::value_ti::get<Tp>();
     template <typename... Args> auto operator()(Tp x, Args &&...args) const {
       return do_visit(x, std::forward<Args>(args)...);
     }
@@ -35,12 +35,9 @@ struct type_info_visitor {
     return methods(std::forward<Args>(args)...);
   }
 
-  template <typename Fn> constexpr static Derived create(Fn &&fn) {
-    Derived v;
-    ((static_cast<visit_type<Ts> &>(v.methods).do_visit = fn,
-      static_cast<visit_type<Ts> &>(v.methods).ti =
-          typeid(std::remove_reference_t<Ts>
-    ), ...);
+  template <typename Fn> constexpr static auto create(Fn &&fn) {
+    type_info_visitor v;
+    ((static_cast<visit_type<Ts> &>(v.methods).do_visit = fn), ...);
     return v;
   }
 
@@ -76,9 +73,8 @@ struct type_info_visitor {
 };
 
 struct type_info_visitor_strategy {
-  template <typename Derived,
-            template <typename> typename VisitorCallableTemplate, class... Ts>
-  using visitor = type_info_visitor<Derived, VisitorCallableTemplate, Ts...>;
+  template <template <typename> typename VisitorCallableTemplate, class... Ts>
+  using visitor = type_info_visitor<VisitorCallableTemplate, Ts...>;
 
   template <typename Visitor, typename... Args>
   auto operator()([[maybe_unused]] const auto &vtbl, auto *pimpl,

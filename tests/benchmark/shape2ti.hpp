@@ -10,9 +10,6 @@
 
 namespace pipeline_tev2 {
 
-struct Visitor1;
-struct Visitor2;
-
 struct shape_vtbl {
   double (*do_area)(const void *);
   double (*do_perimeter)(const void *);

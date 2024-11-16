@@ -7,7 +7,7 @@
 
 #include <random>
 
-#include "shape2_visitor.hpp"
+//#include "shape2_visitor.hpp"
 #include "shape2ti.hpp"
 
 #include "generate_shapes.hpp"
@@ -51,6 +51,9 @@ SCENARIO("I can create instances with type-erasure with vtable+ti") {
   };
 }*/
 
+template <typename Tp> using VISITOR_FCT1 = double (*)(Tp x);
+template <typename Tp> using VISITOR_FCT2 = std::function<double(Tp x)>;
+
 SCENARIO("I can benchmark type-erasure with vtable+ti") {
   using namespace pipeline_tev2;
 
@@ -73,6 +76,18 @@ SCENARIO("I can benchmark type-erasure with vtable+ti") {
       sum += visit(visitor, shape);
     return sum;
   };
+
+  using Visitor1 =
+      VISITOR_STRATEGY::visitor<VISITOR_FCT1, const shape::Square &,
+                                const shape::Circle &, const shape::Rectangle &,
+                                const shape::RightTriangle &,
+                                const shape::Rhombus &>;
+  using Visitor2 =
+      VISITOR_STRATEGY::visitor<VISITOR_FCT2, const shape::Square &,
+                                const shape::Circle &, const shape::Rectangle &,
+                                const shape::RightTriangle &,
+                                const shape::Rhombus &>;
+
   auto areavisitor1 = Visitor1::create( //
       [](const auto &x) { return area(x); });
   auto perimetervisitor1 = Visitor1::create( //

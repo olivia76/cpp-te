@@ -37,7 +37,7 @@ build: configure
 
 .PHONY: tests
 tests:
-	source build/${BUILD_TYPE}/generators/conanrun.sh; cd tests; ../build/${BUILD_TYPE}/tests/tests ${TESTS}
+	source build/${BUILD_TYPE}/generators/conanrun.sh; cd tests; ../build/${BUILD_TYPE}/tests/tests ${TESTS} --skip-benchmarks
 
 .PHONY: benchmark-quick
 benchmark-quick:

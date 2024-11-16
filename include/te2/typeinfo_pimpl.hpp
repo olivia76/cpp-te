@@ -12,19 +12,30 @@
 
 namespace te2::type_info_pimpl {
 
-struct value_ti {
+class value_ti {
   using TypeInfoRef = std::reference_wrapper<const std::type_info>;
 
   TypeInfoRef ti;
   size_t hc{};
 
-  value_ti() : ti{typeid(void)} {}
-  value_ti(const std::type_info &ti_) : ti(ti_), hc(ti_.hash_code()) {}
+  constexpr value_ti() : ti{typeid(void)} {}
+  explicit value_ti(const std::type_info &ti_) : ti(ti_), hc(ti_.hash_code()) {}
+
+  template <typename TypeT> static value_ti _get() {
+    static value_ti tir(typeid(TypeT));
+    return tir;
+  }
+
+public:
+  template <typename TypeT> static value_ti get() {
+    using TP = std::remove_const_t<std::remove_reference_t<TypeT>>;
+    return _get<TP>();
+  }
 
   bool operator==(const value_ti &rhs) const noexcept {
     // Experimental : Two different types can have the same hash_code!!!  Remove
     // the commented part if needed.
-    return hc == rhs.hc /*&& ti.get() == rhs.ti.get()*/;
+    return hc == rhs.hc && ti.get() == rhs.ti.get();
   }
 };
 
@@ -33,7 +44,7 @@ struct unique_ptr_strategy {
   using PIMPL = std::unique_ptr<value_concept>;
 
   struct value_concept {
-    explicit value_concept(const std::type_info &ti_) : ti(ti_) {}
+    explicit value_concept(value_ti ti_) : ti(ti_) {}
     virtual ~value_concept();
     virtual PIMPL clone() const = 0;
 
@@ -53,7 +64,7 @@ struct unique_ptr_strategy {
               std::enable_if_t<
                   !std::is_base_of<value_concept, std::decay_t<Vp>>::value>>
     explicit value_model(Vp &&vp)
-        : value_concept(typeid(Vp)), value(std::forward<Vp>(vp)) {
+        : value_concept(value_ti::get<Vp>()), value(std::forward<Vp>(vp)) {
 #ifdef __GNUC__
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Winvalid-offsetof"

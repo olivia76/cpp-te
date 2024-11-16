@@ -26,7 +26,6 @@ struct default_visitor {
   };
   using visitor_methods = overloaded<Ts...>;
   visitor_methods methods;
-  using TYPES = std::tuple<Ts...>;
 
   template <typename... Args> auto operator()(Args &&...args) const {
     return methods(std::forward<Args>(args)...);
@@ -34,20 +33,8 @@ struct default_visitor {
 
   template <typename Fn> constexpr static Derived create(Fn &&fn) {
     Derived v;
-
-    constexpr size_t N = std::tuple_size_v<TYPES>;
-    if constexpr (N != 0)
-      create_i_n<0, N>(std::forward<Fn>(fn), v.methods);
-
+    ((static_cast<visit_type<Ts> &>(v.methods).do_visit = fn), ...);
     return v;
-  }
-  template <std::size_t I, std::size_t N, typename Fn>
-  static constexpr void create_i_n(Fn &&fn, visitor_methods &vm) {
-    using TS = std::tuple_element_t<I, TYPES>;
-    using VP = visit_type<TS>;
-    static_cast<VP &>(vm).do_visit = fn;
-    if constexpr (I + 1 < N)
-      create_i_n<I + 1, N>(std::forward<Fn>(fn), vm);
   }
 };
 

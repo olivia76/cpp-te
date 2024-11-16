@@ -42,7 +42,7 @@ struct type_info_visitor {
   }
 
   template <typename... Args>
-  auto call(const auto &_ti, const void *_ptr, Args &&...args) const {
+  auto operator()(const auto &_ti, const void *_ptr, Args &&...args) const {
     constexpr size_t N = std::tuple_size_v<TYPES>;
     if constexpr (N == 0)
       return;
@@ -72,6 +72,53 @@ struct type_info_visitor {
   }
 };
 
+template <typename Fn, class... Ts> struct visitor_ti {
+  Fn method;
+  template <typename Tp> struct visit_type {
+    const te2::type_info_pimpl::value_ti ti =
+        te2::type_info_pimpl::value_ti::get<Tp>();
+  };
+  template <class... Ts_> struct overloaded : visit_type<Ts_>... {};
+  using visitor_types = overloaded<Ts...>;
+  visitor_types types;
+  using TYPES = std::tuple<Ts...>;
+
+  visitor_ti(Fn fn) : method(fn) {}
+
+  template <typename... Args>
+  auto operator()(const auto &_ti, const void *_ptr, Args &&...args) const {
+    constexpr size_t N = std::tuple_size_v<TYPES>;
+    if constexpr (N == 0)
+      return;
+    else
+      return call_i_n<0, N>(_ti, _ptr, std::forward<Args>(args)...);
+  }
+
+  template <std::size_t I, std::size_t N, typename... Args>
+  auto call_i_n(const auto &_ti, const void *_ptr, Args &&...args) const {
+    using TS = std::tuple_element_t<I, TYPES>;
+    using VP = visit_type<TS>;
+    using TP = std::remove_reference_t<TS>;
+    if (_ti == static_cast<const VP &>(types).ti) {
+      const TP *ptr = static_cast<const TP *>(_ptr);
+      return method(*ptr, std::forward<Args>(args)...);
+    } else {
+      if constexpr (I + 1 < N)
+        return call_i_n<I + 1, N>(_ti, _ptr, std::forward<Args>(args)...);
+      else
+        error_not_valid_visitor();
+    }
+  }
+
+  [[noreturn]] static void error_not_valid_visitor() {
+    throw std::runtime_error("Did not find a valid visitor");
+  }
+};
+
+template <class... Ts> auto create_ti(auto fn) {
+  return visitor_ti<decltype(fn), Ts...>(fn);
+}
+
 struct type_info_visitor_strategy {
   template <template <typename> typename VisitorCallableTemplate, class... Ts>
   using visitor = type_info_visitor<VisitorCallableTemplate, Ts...>;
@@ -79,8 +126,7 @@ struct type_info_visitor_strategy {
   template <typename Visitor, typename... Args>
   auto operator()([[maybe_unused]] const auto &vtbl, auto *pimpl,
                   Visitor &&visitor, Args &&...args) const {
-    return visitor.call(pimpl->ti, pimpl->get_ptr(),
-                        std::forward<Args>(args)...);
+    return visitor(pimpl->ti, pimpl->get_ptr(), std::forward<Args>(args)...);
   }
 };
 

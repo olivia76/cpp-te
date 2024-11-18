@@ -46,6 +46,7 @@ class CppTeConan(ConanFile):
         cmake.configure(variables={'CMAKE_EXPORT_COMPILE_COMMANDS': 'ON'})
         cmake.build()
         cmake.test()
+        #cmake.ctest(cli_args=["--output-on-failure"])
 
     def package(self):
         cmake = CMake(self)

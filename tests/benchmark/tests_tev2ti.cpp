@@ -78,7 +78,7 @@ SCENARIO("I can benchmark type-erasure with vtable+ti") {
   BENCHMARK("get_sum_area") { return get_sum_area(); };
   BENCHMARK("get_sum_perimeter") { return get_sum_perimeter(); };
 
-  WHEN("Using visitor 1") {
+  /*WHEN("Using visitor 1") {
     using Visitor1 = VISITOR_STRATEGY::visitor<
         VISITOR_FCT1, const shape::Square &, const shape::Circle &,
         const shape::Rectangle &, const shape::RightTriangle &,
@@ -119,7 +119,7 @@ SCENARIO("I can benchmark type-erasure with vtable+ti") {
     BENCHMARK("get_sum_perimeter with visitor+ti (std::function)") {
       return get_sumvisitor(perimetervisitor2);
     };
-  }
+  }*/
 
   /*WHEN("Using visitor 3") {
     auto areavisitor3 = te2::visitor::create_ti<

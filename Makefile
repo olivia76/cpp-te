@@ -74,7 +74,6 @@ pyenv-setup: pyenv-conan pyenv-tests
 .PHONY: pyenv-conan
 pyenv-conan:
 	python3 -m pip install $(PIP_OPTIONS) --upgrade pip
-	#pip3 install $(PIP_OPTIONS) --upgrade pip
 	pip3 install $(PIP_OPTIONS) conan --upgrade
 
 .PHONY: pyenv-tests

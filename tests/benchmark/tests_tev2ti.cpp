@@ -121,7 +121,7 @@ SCENARIO("I can benchmark type-erasure with vtable+ti") {
     };
   }*/
 
-  /*WHEN("Using visitor 3") {
+  WHEN("Using visitor 3") {
     auto areavisitor3 = te2::visitor::create_ti<
         const shape::Square &, const shape::Circle &, const shape::Rectangle &,
         const shape::RightTriangle &, const shape::Rhombus &>(
@@ -140,5 +140,5 @@ SCENARIO("I can benchmark type-erasure with vtable+ti") {
     BENCHMARK("get_sum_perimeter with visitor+ti (3)") {
       return get_sumvisitor(perimetervisitor3);
     };
-  }*/
+  }
 }

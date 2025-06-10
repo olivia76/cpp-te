@@ -59,10 +59,8 @@ struct unique_ptr_strategy {
   };
 
   template <typename ValueT> struct value_model : public value_concept {
-    template <typename Vp,
-              typename = // To prevent overriding copy/move constructor
-              std::enable_if_t<
-                  !std::is_base_of<value_concept, std::decay_t<Vp>>::value>>
+    template <typename Vp>
+    requires (!std::is_base_of<value_concept, std::decay_t<Vp>>::value)
     explicit value_model(Vp &&vp)
         : value_concept(value_ti::get<Vp>()), value(std::forward<Vp>(vp)) {
 #ifdef __GNUC__

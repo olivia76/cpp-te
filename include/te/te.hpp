@@ -34,9 +34,8 @@ protected:
   PIMPL &pimpl() noexcept { return m_pimpl; }
 
   template <
-      typename ValueT, typename... Args,
-      typename = // To prevent overriding copy/move constructor
-      std::enable_if_t<!std::is_base_of<base, std::decay_t<ValueT>>::value>>
+      typename ValueT, typename... Args>
+      requires (!std::is_base_of<base, std::decay_t<ValueT>>::value)
   explicit base(ValueT &&value, Args &&...args)
       : m_pimpl(create_pimpl(std::forward<ValueT>(value),
                              std::forward<Args>(args)...)) {}

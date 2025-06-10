@@ -41,9 +41,8 @@ protected:
   const VTBL &vtbl() const noexcept { return *m_pvtbl; }
 
   template <
-      typename ValueT, typename... Args,
-      typename = // To prevent overriding copy/move constructor
-      std::enable_if_t<!std::is_base_of<base, std::decay_t<ValueT>>::value>>
+      typename ValueT, typename... Args>
+      requires (!std::is_base_of<base, std::decay_t<ValueT>>::value)
   explicit base(ValueT &&tp, Args &&...args)
       : m_pimpl(PimplStrategy::make_pimpl(std::forward<ValueT>(tp),
                                           std::forward<Args>(args)...)),

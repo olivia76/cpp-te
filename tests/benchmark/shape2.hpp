@@ -61,8 +61,14 @@ struct shape_vtbl {
 using VISITOR_STRATEGY = te2::visitor::default_visitor_strategy;
 using BASE = te2::base<shape_vtbl, VISITOR_STRATEGY>;
 struct Shape : public BASE {
-  template <typename ShapeT>
-  Shape(ShapeT &&shape) : BASE(std::forward<ShapeT>(shape)) {}
+  template <typename... Args>
+  Shape(Args &&...args) : BASE(std::forward<Args>(args)...) {}
+
+  template <typename ShapeT, typename... Args>
+  static auto create_from_arguments(Args &&...args) {
+    return base::create_from_arguments<Shape, ShapeT>(
+        std::forward<Args>(args)...);
+  }
 
   auto area() const { return vtbl().do_area(pimpl()); }
   auto perimeter() const { return vtbl().do_perimeter(pimpl()); }

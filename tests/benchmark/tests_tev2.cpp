@@ -128,3 +128,74 @@ SCENARIO("I can benchmark type-erasure with vtable") {
     return get_sumvisitor3(perimetervisitor3);
   };
 }
+
+struct foo {
+  std::string x;
+
+  explicit foo(const std::string _x) : x(_x) {}
+  foo(const foo &) = delete;
+  foo &operator=(const foo &) = delete;
+  foo(foo &&) = default;
+  foo &operator=(foo &&) = default;
+
+  friend std::string getx(const foo &x) noexcept { return x.x; }
+
+  // friend foo clone(const foo &x) { return foo(x.x); }
+};
+
+struct foo_vtbl {
+  std::string (*do_getx)(const void *);
+
+  template <typename CastT> static foo_vtbl create() {
+    return {
+        .do_getx = [](const void *p) { return getx(CastT::value(p)); },
+    };
+  }
+};
+
+#include "te2/pimpl_nocopy.hpp"
+#include "te2/pimpl_sharedptr.hpp"
+
+using VISITOR_STRATEGY = te2::visitor::default_visitor_strategy;
+using BASE_UP = te2::base<foo_vtbl, VISITOR_STRATEGY,
+                          te2::pimpl::unique_ptr_strategy_nocopy>;
+using BASE_SP =
+    te2::base<foo_vtbl, VISITOR_STRATEGY, te2::pimpl::shared_ptr_strategy>;
+template <typename BaseT> struct Foo : public BaseT {
+  using BASE = BaseT;
+  using BASE::pimpl;
+  using BASE::vtbl;
+
+  template <typename... Args>
+  Foo(Args &&...args) : BASE(std::forward<Args>(args)...) {}
+
+  template <typename FooT, typename... Args>
+  static auto create_from_arguments(Args &&...args) {
+    using F = Foo<BASE>;
+    return BASE::template create_from_arguments<F, FooT>(
+        std::forward<Args>(args)...);
+  }
+
+  auto getx() const { return vtbl().do_getx(pimpl()); }
+};
+
+using Foo_UP = Foo<BASE_UP>;
+using Foo_SP = Foo<BASE_SP>;
+
+#include <type_traits>
+
+SCENARIO("I can create a te instance for a move only class") {
+  {
+    auto test =
+        Foo_UP::create_from_arguments<foo>(std::string("Hello, world!"));
+    CHECK(test.getx() == "Hello, world!");
+    Foo_UP::create_from_arguments<foo>(std::move(std::string("Hello, world!")));
+  }
+  {
+    auto test =
+        Foo_SP::create_from_arguments<foo>(std::string("Hello, world!"));
+    CHECK(test.getx() == "Hello, world!");
+
+    Foo_SP::create_from_arguments<foo>(std::move(std::string("Hello, world!")));
+  }
+}

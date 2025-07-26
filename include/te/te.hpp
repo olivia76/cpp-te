@@ -33,10 +33,9 @@ protected:
   const PIMPL &pimpl() const noexcept { return m_pimpl; }
   PIMPL &pimpl() noexcept { return m_pimpl; }
 
-  template <
-      typename ValueT, typename... Args>
-      requires (!std::is_base_of<base, std::decay_t<ValueT>>::value)
-  explicit base(ValueT &&value, Args &&...args)
+  template <typename ValueT, typename... Args>
+  requires(!std::is_base_of<base, std::decay_t<ValueT>>::value) explicit base(
+      ValueT &&value, Args &&...args)
       : m_pimpl(create_pimpl(std::forward<ValueT>(value),
                              std::forward<Args>(args)...)) {}
 

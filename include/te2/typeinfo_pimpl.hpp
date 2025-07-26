@@ -40,6 +40,8 @@ public:
 };
 
 struct unique_ptr_strategy {
+  using can_clone = std::true_type;
+
   struct value_concept;
   using PIMPL = std::unique_ptr<value_concept>;
 
@@ -60,8 +62,9 @@ struct unique_ptr_strategy {
 
   template <typename ValueT> struct value_model : public value_concept {
     template <typename Vp>
-    requires (!std::is_base_of<value_concept, std::decay_t<Vp>>::value)
-    explicit value_model(Vp &&vp)
+    requires(
+        !std::is_base_of<value_concept,
+                         std::decay_t<Vp>>::value) explicit value_model(Vp &&vp)
         : value_concept(value_ti::get<Vp>()), value(std::forward<Vp>(vp)) {
 #ifdef __GNUC__
 #pragma GCC diagnostic push
